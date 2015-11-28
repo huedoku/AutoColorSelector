@@ -1,0 +1,348 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		72463B391C0632C4003B43BF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 72463B381C0632C4003B43BF /* AppDelegate.m */; };
+		72463B3C1C0632C4003B43BF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 72463B3B1C0632C4003B43BF /* main.m */; };
+		72463B3F1C0632C4003B43BF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 72463B3E1C0632C4003B43BF /* ViewController.m */; };
+		72463B411C0632C4003B43BF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72463B401C0632C4003B43BF /* Assets.xcassets */; };
+		72463B441C0632C4003B43BF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 72463B421C0632C4003B43BF /* Main.storyboard */; };
+		72463B4D1C06368F003B43BF /* testPattern00.png in Resources */ = {isa = PBXBuildFile; fileRef = 72463B4C1C06368F003B43BF /* testPattern00.png */; };
+		72463B501C0636BF003B43BF /* HDKCGenerate.m in Sources */ = {isa = PBXBuildFile; fileRef = 72463B4F1C0636BF003B43BF /* HDKCGenerate.m */; };
+		72463B531C064DCF003B43BF /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72463B521C064DCF003B43BF /* Cocoa.framework */; };
+		72463B551C064E15003B43BF /* ImageCaptureCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72463B541C064E15003B43BF /* ImageCaptureCore.framework */; };
+		72463B571C064E21003B43BF /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72463B561C064E21003B43BF /* ImageIO.framework */; };
+		72463B591C064E2A003B43BF /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72463B581C064E2A003B43BF /* CoreImage.framework */; };
+		72463B5B1C064E62003B43BF /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72463B5A1C064E62003B43BF /* Quartz.framework */; };
+		725676371C0663830090ABE5 /* CColorSuggester.m in Sources */ = {isa = PBXBuildFile; fileRef = 725676361C0663830090ABE5 /* CColorSuggester.m */; };
+		72BC4D5D1C06691A001C7806 /* heartnot.png in Resources */ = {isa = PBXBuildFile; fileRef = 72BC4D5C1C06691A001C7806 /* heartnot.png */; };
+		72BC4D5F1C066A4C001C7806 /* cross64.png in Resources */ = {isa = PBXBuildFile; fileRef = 72BC4D5E1C066A4C001C7806 /* cross64.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		72463B341C0632C4003B43BF /* AutoColor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoColor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		72463B371C0632C4003B43BF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		72463B381C0632C4003B43BF /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		72463B3B1C0632C4003B43BF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		72463B3D1C0632C4003B43BF /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		72463B3E1C0632C4003B43BF /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		72463B401C0632C4003B43BF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		72463B431C0632C4003B43BF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		72463B451C0632C4003B43BF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		72463B4C1C06368F003B43BF /* testPattern00.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = testPattern00.png; path = Resources/testPattern00.png; sourceTree = "<group>"; };
+		72463B4E1C0636BF003B43BF /* HDKCGenerate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDKCGenerate.h; sourceTree = "<group>"; };
+		72463B4F1C0636BF003B43BF /* HDKCGenerate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDKCGenerate.m; sourceTree = "<group>"; };
+		72463B521C064DCF003B43BF /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		72463B541C064E15003B43BF /* ImageCaptureCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageCaptureCore.framework; path = System/Library/Frameworks/ImageCaptureCore.framework; sourceTree = SDKROOT; };
+		72463B561C064E21003B43BF /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		72463B581C064E2A003B43BF /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		72463B5A1C064E62003B43BF /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
+		725676351C0663830090ABE5 /* CColorSuggester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CColorSuggester.h; sourceTree = "<group>"; };
+		725676361C0663830090ABE5 /* CColorSuggester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CColorSuggester.m; sourceTree = "<group>"; };
+		72BC4D5C1C06691A001C7806 /* heartnot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = heartnot.png; path = Resources/heartnot.png; sourceTree = "<group>"; };
+		72BC4D5E1C066A4C001C7806 /* cross64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cross64.png; path = Resources/cross64.png; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		72463B311C0632C4003B43BF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72463B5B1C064E62003B43BF /* Quartz.framework in Frameworks */,
+				72463B591C064E2A003B43BF /* CoreImage.framework in Frameworks */,
+				72463B571C064E21003B43BF /* ImageIO.framework in Frameworks */,
+				72463B551C064E15003B43BF /* ImageCaptureCore.framework in Frameworks */,
+				72463B531C064DCF003B43BF /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		72463B2B1C0632C4003B43BF = {
+			isa = PBXGroup;
+			children = (
+				72463B5A1C064E62003B43BF /* Quartz.framework */,
+				72463B581C064E2A003B43BF /* CoreImage.framework */,
+				72463B561C064E21003B43BF /* ImageIO.framework */,
+				72463B541C064E15003B43BF /* ImageCaptureCore.framework */,
+				72463B521C064DCF003B43BF /* Cocoa.framework */,
+				72463B4B1C063680003B43BF /* Resources */,
+				72463B361C0632C4003B43BF /* AutoColor */,
+				72463B351C0632C4003B43BF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		72463B351C0632C4003B43BF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				72463B341C0632C4003B43BF /* AutoColor.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		72463B361C0632C4003B43BF /* AutoColor */ = {
+			isa = PBXGroup;
+			children = (
+				72463B371C0632C4003B43BF /* AppDelegate.h */,
+				72463B381C0632C4003B43BF /* AppDelegate.m */,
+				72463B3D1C0632C4003B43BF /* ViewController.h */,
+				72463B3E1C0632C4003B43BF /* ViewController.m */,
+				725676351C0663830090ABE5 /* CColorSuggester.h */,
+				725676361C0663830090ABE5 /* CColorSuggester.m */,
+				72463B4E1C0636BF003B43BF /* HDKCGenerate.h */,
+				72463B4F1C0636BF003B43BF /* HDKCGenerate.m */,
+				72463B401C0632C4003B43BF /* Assets.xcassets */,
+				72463B421C0632C4003B43BF /* Main.storyboard */,
+				72463B451C0632C4003B43BF /* Info.plist */,
+				72463B3A1C0632C4003B43BF /* Supporting Files */,
+			);
+			name = AutoColor;
+			path = HDKTetra;
+			sourceTree = "<group>";
+		};
+		72463B3A1C0632C4003B43BF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				72463B3B1C0632C4003B43BF /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		72463B4B1C063680003B43BF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				72BC4D5E1C066A4C001C7806 /* cross64.png */,
+				72BC4D5C1C06691A001C7806 /* heartnot.png */,
+				72463B4C1C06368F003B43BF /* testPattern00.png */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		72463B331C0632C4003B43BF /* AutoColor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 72463B481C0632C4003B43BF /* Build configuration list for PBXNativeTarget "AutoColor" */;
+			buildPhases = (
+				72463B301C0632C4003B43BF /* Sources */,
+				72463B311C0632C4003B43BF /* Frameworks */,
+				72463B321C0632C4003B43BF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AutoColor;
+			productName = HDKTetra;
+			productReference = 72463B341C0632C4003B43BF /* AutoColor.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		72463B2C1C0632C4003B43BF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0710;
+				ORGANIZATIONNAME = "Huedoku Labs, Inc";
+				TargetAttributes = {
+					72463B331C0632C4003B43BF = {
+						CreatedOnToolsVersion = 7.1;
+					};
+				};
+			};
+			buildConfigurationList = 72463B2F1C0632C4003B43BF /* Build configuration list for PBXProject "AutoColor" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 72463B2B1C0632C4003B43BF;
+			productRefGroup = 72463B351C0632C4003B43BF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				72463B331C0632C4003B43BF /* AutoColor */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		72463B321C0632C4003B43BF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72BC4D5D1C06691A001C7806 /* heartnot.png in Resources */,
+				72BC4D5F1C066A4C001C7806 /* cross64.png in Resources */,
+				72463B4D1C06368F003B43BF /* testPattern00.png in Resources */,
+				72463B411C0632C4003B43BF /* Assets.xcassets in Resources */,
+				72463B441C0632C4003B43BF /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		72463B301C0632C4003B43BF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72463B3F1C0632C4003B43BF /* ViewController.m in Sources */,
+				725676371C0663830090ABE5 /* CColorSuggester.m in Sources */,
+				72463B3C1C0632C4003B43BF /* main.m in Sources */,
+				72463B501C0636BF003B43BF /* HDKCGenerate.m in Sources */,
+				72463B391C0632C4003B43BF /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		72463B421C0632C4003B43BF /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				72463B431C0632C4003B43BF /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		72463B461C0632C4003B43BF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		72463B471C0632C4003B43BF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		72463B491C0632C4003B43BF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = HDKTetra/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.huedoku.HDKTetra;
+				PRODUCT_NAME = AutoColor;
+			};
+			name = Debug;
+		};
+		72463B4A1C0632C4003B43BF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = HDKTetra/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.huedoku.HDKTetra;
+				PRODUCT_NAME = AutoColor;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		72463B2F1C0632C4003B43BF /* Build configuration list for PBXProject "AutoColor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72463B461C0632C4003B43BF /* Debug */,
+				72463B471C0632C4003B43BF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		72463B481C0632C4003B43BF /* Build configuration list for PBXNativeTarget "AutoColor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72463B491C0632C4003B43BF /* Debug */,
+				72463B4A1C0632C4003B43BF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 72463B2C1C0632C4003B43BF /* Project object */;
+}
