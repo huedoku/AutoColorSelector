@@ -122,11 +122,11 @@ int hverbose = 1;
 //    NSImage*  tempImage=[[NSImage alloc] initWithContentsOfFile:imageName];
     NSBitmapImageRep* imageRep  =[[NSBitmapImageRep alloc] initWithData:[image TIFFRepresentation]];
     unsigned char* rawData      = [imageRep bitmapData];
-    int bitsPerPixel            = [imageRep bitsPerPixel];
+    int bitsPerPixel            = (int)[imageRep bitsPerPixel];
     int bytesPerPixel = bitsPerPixel/8;
-    NSLog(@" bitsperpixel %d bytes %d",bytesPerPixel);
     width                       = image.size.width;
     height                      = image.size.height;
+    NSLog(@" bitsperpixel %d bytes %d",bytesPerPixel, 4*width*height);
     
     int cArrayPtr = 0;
     // Now your rawData contains the image data in the RGBA8888 pixel format.
