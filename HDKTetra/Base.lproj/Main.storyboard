@@ -876,6 +876,22 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="clz-db-Vj1">
+                                <rect key="frame" x="534" y="200" width="101" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Pixel Blocksize" id="0Dm-Xz-IrN">
+                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ksY-Xb-ahT">
+                                <rect key="frame" x="639" y="197" width="55" height="22"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="tRf-l6-95h">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7GN-Dd-Vaz">
                                 <rect key="frame" x="527" y="315" width="88" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Thresholds..." id="Kjs-xd-Kvh">
@@ -884,6 +900,16 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" tag="101" translatesAutoresizingMaskIntoConstraints="NO" id="Ogu-z9-XzS">
+                                <rect key="frame" x="578" y="161" width="122" height="32"/>
+                                <buttonCell key="cell" type="push" title="Resize Pixels" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cej-ud-A6B">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="testSelect:" target="XfG-lQ-9wD" id="0Pv-Wq-02V"/>
+                                </connections>
+                            </button>
                         </subviews>
                     </view>
                     <connections>
@@ -891,6 +917,7 @@
                         <outlet property="binPopText" destination="lr5-XR-z7I" id="XwJ-NU-OoW"/>
                         <outlet property="blButton" destination="oaJ-dc-wmo" id="7RS-ye-527"/>
                         <outlet property="blSwatch" destination="htJ-Js-IN5" id="huF-t0-EKQ"/>
+                        <outlet property="blockSizeText" destination="ksY-Xb-ahT" id="DuT-0N-TXM"/>
                         <outlet property="brButton" destination="JVh-bu-ubR" id="hYc-fP-7qZ"/>
                         <outlet property="brSwatch" destination="3cs-tK-nTi" id="t8T-NI-kNM"/>
                         <outlet property="colorSimText" destination="fcs-qk-i1M" id="LvH-1g-F4R"/>
@@ -904,7 +931,6 @@
                         <outlet property="trSwatch" destination="WEy-td-wMc" id="ehr-QS-22j"/>
                         <outlet property="xylabel00" destination="SvK-c9-BcU" id="J5g-tz-P3b"/>
                         <outlet property="xylabel01" destination="W3H-wR-1ph" id="EUb-3Y-6Wv"/>
-                        <outlet property="xylabel02" destination="b5A-lC-k07" id="lVx-I2-IRQ"/>
                         <outlet property="xylabel03" destination="Gpe-vk-hIR" id="aiU-fZ-Use"/>
                     </connections>
                 </viewController>

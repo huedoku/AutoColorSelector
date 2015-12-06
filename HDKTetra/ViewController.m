@@ -13,11 +13,15 @@
 #import "CColorSuggester.h"
 
 
+
 @implementation ViewController
+
+#define tiffHeaderSize 8
 
 int whichWell;
 
 NSImage *workImage;
+NSImage *originalImage;
 int workImageWidth,workImageHeight;
 
 NSImage *squareCrosshair;
@@ -58,6 +62,7 @@ int pixelSelectX,pixelSelectY;
     squareCrosshair = [NSImage imageNamed:@"cross64"];
     _binPopText.stringValue = @"40";
     _colorSimText.stringValue = @"0.15";
+    _blockSizeText.stringValue = @"1";
 } //end viewDidLoad
 
 
@@ -107,7 +112,7 @@ int pixelSelectX,pixelSelectY;
     
     //    NSLog(@" ivxy %f %f wy %f %f",fr.origin.x,fr.origin.y,fr.size.width,fr.size.height);
     workImage = [NSImage imageNamed:@"testPattern00"];
-    
+    originalImage = workImage;
     workImageWidth  = workImage.size.width;
     workImageHeight = workImage.size.height;
     
@@ -161,7 +166,7 @@ int pixelSelectX,pixelSelectY;
         pixelSelectY = ypos;
         //NSLog(@" pixelselect %d,%d",pixelSelectX,pixelSelectY);
         [self getColorUnderMouse];
-        int invy = 512-ypos;
+        int invy = workImageHeight-ypos;
         [self updateCrossHair: whichWell : xpos : invy];
         [self updateXYLabel  : whichWell : xpos : invy];
 
@@ -180,8 +185,103 @@ int pixelSelectX,pixelSelectY;
 //    NSLog(@" coloriz %@ %f,%f,%f",color,r,g,b);
     [self updateWell: whichWell :color];
 
-   // [imageRep release];
-}
+} //end getColorUnderMouse
+
+//===HDKTetra===================================================================
+-(void)tweakit
+{
+    int x,y,i;
+    NSData *data = [originalImage TIFFRepresentation];
+    int iwid = originalImage.size.width;
+    //OK at this point mb actually has the TIFF raw data.
+    //  NOTE first 8 bytes are reserved for TIFF header!
+    unsigned char * mb = [data bytes];
+    int blen = [data length];
+    int rowsize = 3*iwid;
+    
+    //Copy to 2nd buffer...
+    unsigned char *mb2 = (unsigned char *) malloc(blen);
+    for (i=0;i<blen;i++) mb2[i] = mb[i];
+    
+    
+    NSBitmapImageRep* imageRep = [[NSBitmapImageRep alloc] initWithData:[workImage TIFFRepresentation]];
+//    NSColor* color = [imageRep colorAtX:pixelSelectX y:imageHeight - pixelSelectY];  asdf
+    x = 10;y = 10;
+//    for (i=0;i<512;i++)
+//    {
+//        int i3 = tiffHeaderSize + 3*i;
+//
+//        NSLog(@" data[%d] rgb %x,%x,%x",i,mb[i3],mb[i3+1],mb[i3+2]);
+//        //    [imageRep setColor:[NSColor blackColor] atX:i y:i];
+//    }
+    
+    //Add a black stripe...
+//    int iptr = 0;
+//    for (i=0;i<200;i++)
+//    {
+//        iptr = tiffHeaderSize + i + i*rowsize;
+//        mb[iptr]  = 0;
+//        mb[iptr+1]  = 0;
+//        mb[iptr+2]  = 0;
+//    }
+
+    
+    int mag = _blockSizeText.intValue;
+    if (mag <= 0) mag = 1;
+    if ((mag > 2) &&  (mag % 2 == 1)) //3 and up and Odd! Ouch!
+    {
+        mag++;
+    }
+    if (mag > 32) mag = 32;
+    _blockSizeText.stringValue = [NSString stringWithFormat: @"%d",mag];
+    NSLog(@" mag is %d",mag);
+    int loopx,loopy;
+    int iptr;
+    for(loopy=0;loopy<workImageHeight;loopy+=mag)
+    {
+        for(loopx=0;loopx<workImageWidth;loopx+=mag)
+        {
+         //   -(void) pixelBlock : (unsigned char *) inbuf: (unsigned char *) outbuf : (int) x : (int) y : (int) rowsize : (int) magnification
+            [self pixelBlock: mb :mb2 :loopx :loopy :rowsize : mag];
+        } //end loopx
+    } //end loopy
+    
+    
+    //Take our byte array mb, encapsulate it into an NSData object...
+    NSData *outData = [[NSData alloc] initWithBytes:mb2 length:blen];
+    //Now the NSData object gets turned into an NSImage
+    workImage = [[NSImage alloc] initWithData:outData];
+    //Replace the image onscreen with our new iamge...
+    imageView.image = workImage;
+
+} //end tweakit
+
+//===HDKTetra===================================================================
+-(void) pixelBlock : (unsigned char *) inbuf: (unsigned char *) outbuf : (int) x : (int) y : (int) rowsize : (int) magnification
+{
+    unsigned char r,g,b;
+    int iptr,optr;
+    int loopx,loopy;
+    
+    iptr = tiffHeaderSize + (3*x) + (rowsize*y);
+    r = inbuf[iptr];
+    g = inbuf[iptr+1];
+    b = inbuf[iptr+2];
+    
+    for (loopy = 0;loopy < magnification;loopy++)
+    {
+        optr =  tiffHeaderSize + (3 * x) + (rowsize * (y + loopy)); //Starting pointer for our block
+        for (loopx = 0;loopx < magnification;loopx++)
+        {
+            outbuf[optr]   = r;
+            outbuf[optr+1] = g;
+            outbuf[optr+2] = b;
+            optr+=3;
+        }
+    }
+    
+    
+} //end pixelBlock
 
 
 //===HDKTetra===================================================================
@@ -212,6 +312,7 @@ int pixelSelectX,pixelSelectY;
     if (image != nil)
     {
         workImage = [self cropToSquare:image];
+        originalImage   = workImage;
         imageView.image = workImage;
         workImageWidth  = workImage.size.width;
         workImageHeight = workImage.size.height;
@@ -352,10 +453,16 @@ int pixelSelectX,pixelSelectY;
 }
 
 //===HDKTetra===================================================================
+- (IBAction)testSelect:(id)sender
+{
+    [self tweakit];
+}
+
+//===HDKTetra===================================================================
 // starting hist vals are : ff0000: 22,332 (white?)
 -(void) updateXYLabel: (int) which : (int) newx : (int) newy
 {
-    int invy = 512 - newy; //DO I NEED THIS?
+    int invy = workImageHeight - newy; //DO I NEED THIS?
     NSString *lstr = [NSString stringWithFormat:@"%d,%d",newx,newy];
     switch(which)
     {
@@ -486,7 +593,7 @@ int pixelSelectX,pixelSelectY;
 //===HDKGenerator===================================================================
 - (void)mouseMoved:(NSEvent *)event
 {
-    NSLog(@" mm VC");
+    //NSLog(@" mm VC");
     //   NSPoint locationInView = [self convertPoint:[event locationInWindow]
     //                                      fromView:nil];
 }
@@ -575,7 +682,7 @@ int pixelSelectX,pixelSelectY;
 {
     NSString *errmsg = [NSString stringWithFormat:@" Not enough colors found, need 4, only found %d \n Try lowering the Color Similarity Threshold",numcolors];
     [self displayError:errmsg];
-}
+} //end displayTooFewColorsError
 
 
 //===HDKGenerator===================================================================

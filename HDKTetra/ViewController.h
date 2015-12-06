@@ -22,6 +22,7 @@
 - (IBAction)blSelect:(id)sender;
 - (IBAction)brSelect:(id)sender;
 - (IBAction)crosshairSelect:(id)sender;
+- (IBAction)testSelect:(id)sender;
 
 @property (weak) IBOutlet NSColorWell *tlSwatch;
 @property (weak) IBOutlet NSColorWell *trSwatch;
@@ -45,6 +46,7 @@
 @property (weak) IBOutlet NSTextField *xylabel03;
 @property (weak) IBOutlet NSTextField *binPopText;
 @property (weak) IBOutlet NSTextField *colorSimText;
+@property (weak) IBOutlet NSTextField *blockSizeText;
 
 @end
 
