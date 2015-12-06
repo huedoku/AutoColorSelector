@@ -55,6 +55,10 @@
 
     int topTenLocations[32];
 }
+
+@property (nonatomic , assign) int       binThresh;
+@property (nonatomic , assign) float     rgbDiffThresh;
+
 //@property (nonatomic , strong) NSString* fromUser;
 //@property (nonatomic , assign) int       uniquePuzzleId;
 
@@ -68,6 +72,7 @@
 //-(ColorSuggester *)    copy;
 -(int) getWidth1;
 -(int) getHeight1;
+-(int) getReducedCount;
 
 
 @end

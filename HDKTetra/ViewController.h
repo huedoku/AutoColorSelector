@@ -39,5 +39,12 @@
 @property (weak) IBOutlet NSButton *crossHair03;
 @property (weak) IBOutlet NSTextField *TopLabel;
 
+@property (weak) IBOutlet NSTextField *xylabel00;
+@property (weak) IBOutlet NSTextField *xylabel01;
+@property (weak) IBOutlet NSTextField *xylabel02;
+@property (weak) IBOutlet NSTextField *xylabel03;
+@property (weak) IBOutlet NSTextField *binPopText;
+@property (weak) IBOutlet NSTextField *colorSimText;
+
 @end
 

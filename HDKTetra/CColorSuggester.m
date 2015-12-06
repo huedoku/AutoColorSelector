@@ -23,7 +23,7 @@ int HHH,LLL,SSS;
 #define  RGBMAX   255   // R,G, and B vary over 0-RGBMAX
 
 #define MAX_HIST_BINS 256*256*256
-int hverbose = 1;
+int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
 
 #define INV255 0.00392156
 //Note: we need a little fudge factor here
@@ -66,6 +66,10 @@ int hverbose = 1;
         mostCyanIndex       = 0;
         mostMagentaIndex    = 0;
         mostYellowIndex     = 0;
+        
+        _binThresh = 40;
+        _rgbDiffThresh = 0.15;
+
     }
     
     return self;
@@ -126,7 +130,7 @@ int hverbose = 1;
     int bytesPerPixel = bitsPerPixel/8;
     width                       = image.size.width;
     height                      = image.size.height;
-    NSLog(@" bitsperpixel %d bytes %d",bytesPerPixel, 4*width*height);
+    //NSLog(@" bitsperpixel %d bytes %d",bytesPerPixel, 4*width*height);
     
     int cArrayPtr = 0;
     // Now your rawData contains the image data in the RGBA8888 pixel format.
@@ -146,7 +150,7 @@ int hverbose = 1;
         cArray1[cArrayPtr++] = ired;
         cArray1[cArrayPtr++] = igreen;
         cArray1[cArrayPtr++] = iblue;
-        if ((hverbose == 2) && (i % width == 0))
+        if ((hverbose == 3) && (i % width == 0)) //Sanity check, print LH pixel on each row
         {
             row = i/width;
             NSLog(@" row %d rgb %f %f %f ",row,(float)red,(float)green,(float)blue);
@@ -366,11 +370,13 @@ int hverbose = 1;
     int red,green,blue;
     const CGFloat* components;
     
-   
+    NSLog(@"Running Histogram...");
     //Loop over image; accumulate stats..
     if (hverbose) NSLog(@" running histogram...");
     for (i=0;i<MAX_HIST_BINS;i++) bins[i] = 0;
     int cArrayPtr = 0;
+
+    // Loop over all pixels.  Get RGB. Compute index to bin from RGB. Increment that bin.
     for (i = 0 ; i < numPixels1 ; i++)
     {
       //Get next color
@@ -380,7 +386,7 @@ int hverbose = 1;
       //Get our index...
       index   =  (red<<16) + (green<<8) + blue;
       bins[index]++;
-      binsIndices[index] = i; //Store last color location
+      if (bins[index] == 1) binsIndices[index] = i; //Store first color location (this is where last pixel was)
     }
     //Get bin range, some images produce more colors than others...
     int maxBinCount = 0;
@@ -394,7 +400,7 @@ int hverbose = 1;
         if (nextbin > 10)
         {
             aveBinCount+=nextbin;
-            if ((hverbose == 2)  && (aveCount % 32 == 0)) NSLog(@" add in bin[%d] %d",aveCount,nextbin);
+            if ((hverbose == 3)  && (aveCount % 32 == 0)) NSLog(@" add in bin[%d] %d",aveCount,nextbin);
             aveCount++;
         }
     }
@@ -402,12 +408,22 @@ int hverbose = 1;
     if (hverbose) NSLog(@" max bin count: %d",maxBinCount);
     if (hverbose) NSLog(@" ave bin count: %d",aveBinCount);
 
+    int dumptoler = width1 / 5;
+    if (hverbose > 0) NSLog(@"Bins with population over %d",dumptoler);
+    if (hverbose > 1)
+    {
+        for (i=0;i<MAX_HIST_BINS;i++)
+        {
+            if (bins[i] > dumptoler) NSLog(@"    bin[%d] %d RGBindex %d",i,bins[i],binsIndices[i]);
+        }
+    }
+    
     int hcount = 0;
     // Loop over ALL our bins we found, add results to output arrays...
     ssize = 0;
-    hthresh = 40;
+    hthresh = _binThresh;
     int colorIndex,colorx,colory;
-    if (hverbose) NSLog(@"  ...threshold %d",hthresh);
+    if (hverbose) NSLog(@" Culling bins below threshold %d",hthresh);
     for (i=0;i<MAX_HIST_BINS;i++)
     {
         popint = bins[i];
@@ -421,9 +437,9 @@ int hverbose = 1;
             gcolorz[ssize]     = green;
             bcolorz[ssize]     = blue;
             colorIndex = binsIndices[i]; //point to last index for this color
+            colorzIndices[ssize] = colorIndex;
             //colorx = colorIndex%width1;
             //colory = colorIndex/width1;
-            colorzIndices[ssize] = colorIndex;
             ssize++;
             hcount++;
             if (hverbose == 2) NSLog(@"  bin[%d] pop %d color (%d,%d,%d) index:%d",i,bins[i],red,green,blue,colorIndex);
@@ -432,7 +448,15 @@ int hverbose = 1;
     }
     //Quick/dirty sort: find top ten populations
     for (i=0;i<TOPTENCOUNT;i++) topTenLocations[i] = -1;
-    NSLog(@" thresh produced %d bins",ssize);
+    if (hverbose > 0) NSLog(@" thresh produced %d bins",ssize);
+    if (hverbose == 2)
+    {
+        for (i=0;i<ssize;i++)
+        {
+            NSLog(@"  tt[%d] pop %d loc %d rgb %d,%d,%d",i,populations[i],colorzIndices[i],rcolorz[i],gcolorz[i],bcolorz[i]);
+        }
+    }
+    
     [topTenColors removeAllObjects]; //Clear top ten colors array
     for (i=0;i<TOPTENCOUNT;i++)
     {
@@ -444,10 +468,10 @@ int hverbose = 1;
         {
 
             int nextpop = populations[j];
-            if (hverbose == 2) NSLog(@" population index %d nextpop %d maxpop %d",j,nextpop,maxpop);
+            if (hverbose == 3) NSLog(@" population index %d nextpop %d maxpop %d",j,nextpop,maxpop);
             if (nextpop > maxpop)
             {
-                if (hverbose == 2) NSLog(@" ...new max %d vs %d at %d",nextpop,maxpop,j);
+                if (hverbose == 3) NSLog(@" ...new max %d vs %d at %d",nextpop,maxpop,j);
                 found = 0;
                 for (int k=0;k<TOPTENCOUNT && !found;k++)
                 {
@@ -461,7 +485,8 @@ int hverbose = 1;
                 
             }       //end nextpop
         }          //end j loop
-        if (hverbose == 2) NSLog(@" ...store bin %d in topten %d maxpop %d",wherezit,i,maxpop);
+        //This indicates we have found a sorted bin, should dump from highest to lowest population...
+        if (hverbose == 2) NSLog(@" ...tt results: bin %d  : %d population %d",wherezit,i,maxpop);
         topTenLocations[i] = wherezit; //Store LOCATION of color in histogram population
     }             //end i loop
     //Get colors out using topten indices into histogram...
@@ -472,7 +497,7 @@ int hverbose = 1;
         //if (hverbose) NSLog(@" topten index %d",i);
         tmpc = [NSColor colorWithRed:(CGFloat)rcolorz[jj]*INV255 green:(CGFloat)gcolorz[jj]*INV255 blue:(CGFloat)bcolorz[jj]*INV255 alpha:1];
         [topTenColors addObject:tmpc]; //Store top ten color away...
-        colorIndex = colorzIndices[i];
+        colorIndex = colorzIndices[jj];
         colorx = colorIndex%width1;
         colory = colorIndex/width1;
         topTenXY[i] = CGPointMake(colorx,colory);
@@ -483,8 +508,8 @@ int hverbose = 1;
             red        = (int)(255*components[0]);
             green      = (int)(255*components[1]);
             blue       = (int)(255*components[2]);
-            NSLog(@"  ...topten[%d] : popbin:%3.3d pop:%5.5d RGB(%3.3d,%3.3d,%3.3d) XY (%f,%f)",
-                  i,jj,populations[jj],red,green,blue,topTenXY[i].x,topTenXY[i].y);
+            NSLog(@"  ...topten[%d] : popbin:%3.3d pop:%5.5d colorIndex %d RGB(%3.3d,%3.3d,%3.3d) XY (%f,%f)",
+                  i,jj,populations[jj],colorIndex,red,green,blue,topTenXY[i].x,topTenXY[i].y);
         }
     } //end for i
     free(colorzIndices);
@@ -570,7 +595,7 @@ int hverbose = 1;
 //   reducedColors array; we are looking for FOUR RESULTS...
 -(void) reduceColors
 {
-    float thresh = 0.15; //RGB difference thresh
+    float thresh = _rgbDiffThresh; //RGB difference thresh
     float cdiff;
     NSColor *tmpc1;
     NSColor *tmpc2;
@@ -617,8 +642,14 @@ int hverbose = 1;
         blue       = (int)(255*components[2]);
         if (hverbose) NSLog(@" reduced[%d] (%d,%d,%d) : %f,%f",i,red,green,blue,reducedXY[i].x,reducedXY[i].y);
     }
+    NSLog(@" ...found %d reduced colors",(int)reducedColors.count);
 }  //end reduceColors
 
+//=====[ColorSuggester]======================================================================
+-(int) getReducedCount
+{
+    return (int)reducedColors.count;
+}  //end getReducedCount
 
 //=====[ColorSuggester]======================================================================
 -(CGPoint) getNthReducedXY : (int) n
@@ -656,7 +687,7 @@ int hverbose = 1;
         blue       = (int)(255*components[2]);
         NSLog(@"  [%d]: XY %f,%f: RGB (%d,%d,%d)",i,topTenXY[i].x,topTenXY[i].y,red,green,blue);
     }
-    NSLog(@"   reduced:");
+    NSLog(@"   reduced, found %d colors", (int)reducedColors.count);
     for (i=0;i<[reducedColors count];i++)
     {
         tmpc1 = [reducedColors objectAtIndex:i];
@@ -680,5 +711,6 @@ int hverbose = 1;
 {
     return height1;
 }
+
 
 @end

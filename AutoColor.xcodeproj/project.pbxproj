@@ -22,6 +22,7 @@
 		725676371C0663830090ABE5 /* CColorSuggester.m in Sources */ = {isa = PBXBuildFile; fileRef = 725676361C0663830090ABE5 /* CColorSuggester.m */; };
 		72BC4D5D1C06691A001C7806 /* heartnot.png in Resources */ = {isa = PBXBuildFile; fileRef = 72BC4D5C1C06691A001C7806 /* heartnot.png */; };
 		72BC4D5F1C066A4C001C7806 /* cross64.png in Resources */ = {isa = PBXBuildFile; fileRef = 72BC4D5E1C066A4C001C7806 /* cross64.png */; };
+		72C8CC241C14DBD300A09A67 /* crosscirc128.png in Resources */ = {isa = PBXBuildFile; fileRef = 72C8CC231C14DBD300A09A67 /* crosscirc128.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		725676361C0663830090ABE5 /* CColorSuggester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CColorSuggester.m; sourceTree = "<group>"; };
 		72BC4D5C1C06691A001C7806 /* heartnot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = heartnot.png; path = Resources/heartnot.png; sourceTree = "<group>"; };
 		72BC4D5E1C066A4C001C7806 /* cross64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cross64.png; path = Resources/cross64.png; sourceTree = "<group>"; };
+		72C8CC231C14DBD300A09A67 /* crosscirc128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = crosscirc128.png; path = Resources/crosscirc128.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +119,7 @@
 		72463B4B1C063680003B43BF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				72C8CC231C14DBD300A09A67 /* crosscirc128.png */,
 				72BC4D5E1C066A4C001C7806 /* cross64.png */,
 				72BC4D5C1C06691A001C7806 /* heartnot.png */,
 				72463B4C1C06368F003B43BF /* testPattern00.png */,
@@ -186,6 +189,7 @@
 				72463B4D1C06368F003B43BF /* testPattern00.png in Resources */,
 				72463B411C0632C4003B43BF /* Assets.xcassets in Resources */,
 				72463B441C0632C4003B43BF /* Main.storyboard in Resources */,
+				72C8CC241C14DBD300A09A67 /* crosscirc128.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

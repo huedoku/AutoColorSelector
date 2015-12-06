@@ -18,6 +18,11 @@
 int whichWell;
 
 NSImage *workImage;
+int workImageWidth,workImageHeight;
+
+NSImage *squareCrosshair;
+NSImage *circCrosshair;
+int numReducedColors;
 
 IKPictureTaker *pictureTaker;
 
@@ -30,10 +35,13 @@ NSButton *cross2;
 NSButton *cross3;
 NSButton *cross4;
 
+
+
 int crosswh;
 
 NSImageView *imageView;
 
+// These are the UI image params, not the actual image sizes!!!
 int imageTop,imageLeft,imageWidth,imageHeight;
 int pixelSelectX,pixelSelectY;
 
@@ -45,7 +53,12 @@ int pixelSelectX,pixelSelectY;
     csugg = [[CColorSuggester alloc] init];
     crosswh = 40;
     // Do any additional setup after loading the view.
-}
+    
+    circCrosshair   = [NSImage imageNamed:@"crosscirc128"];
+    squareCrosshair = [NSImage imageNamed:@"cross64"];
+    _binPopText.stringValue = @"40";
+    _colorSimText.stringValue = @"0.15";
+} //end viewDidLoad
 
 
 //===HDKTetra===================================================================
@@ -94,9 +107,19 @@ int pixelSelectX,pixelSelectY;
     
     //    NSLog(@" ivxy %f %f wy %f %f",fr.origin.x,fr.origin.y,fr.size.width,fr.size.height);
     workImage = [NSImage imageNamed:@"testPattern00"];
+    
+    workImageWidth  = workImage.size.width;
+    workImageHeight = workImage.size.height;
+    
     [csugg load:workImage];
-    // Do any additional setup after loading the view.
-}
+    numReducedColors = [csugg getReducedCount];
+    if (numReducedColors < 4)
+    {
+        [self displayTooFewColorsError : numReducedColors];
+    }
+    
+    [self updateSwatchesAndCrosshairs];
+} //end viewdidappear
 
 
 //===HDKTetra===================================================================
@@ -128,7 +151,7 @@ int pixelSelectX,pixelSelectY;
     ypos = np.y;
 
     
-    NSLog(@"mm xy %d %d",xpos,ypos);
+    //NSLog(@"mm xy %d %d",xpos,ypos);
     xpos-=imageLeft;
     ypos-=imageTop;
     if (xpos >= 0 && ypos>=0 && xpos<=imageWidth && ypos<=imageHeight)
@@ -136,9 +159,12 @@ int pixelSelectX,pixelSelectY;
         
         pixelSelectX = xpos;
         pixelSelectY = ypos;
-        NSLog(@" pixelselect %d,%d",pixelSelectX,pixelSelectY);
+        //NSLog(@" pixelselect %d,%d",pixelSelectX,pixelSelectY);
         [self getColorUnderMouse];
-        [self updateCrossHair:whichWell :xpos :ypos];
+        int invy = 512-ypos;
+        [self updateCrossHair: whichWell : xpos : invy];
+        [self updateXYLabel  : whichWell : xpos : invy];
+
     }
     
 } //end mouseDragged
@@ -187,6 +213,17 @@ int pixelSelectX,pixelSelectY;
     {
         workImage = [self cropToSquare:image];
         imageView.image = workImage;
+        workImageWidth  = workImage.size.width;
+        workImageHeight = workImage.size.height;
+
+        [csugg load:workImage];
+        numReducedColors = [csugg getReducedCount];
+        if (numReducedColors < 4)
+        {
+            [self displayTooFewColorsError : numReducedColors];
+        }
+        [self updateSwatchesAndCrosshairs];
+        
     }
     
 } //end pictureTakerDidEnd
@@ -195,7 +232,32 @@ int pixelSelectX,pixelSelectY;
 - (IBAction)tetraSelect:(id)sender
 {
     NSLog(@" run tetra...");
-}
+    int binthresh = _binPopText.intValue;
+    if (binthresh == 0)
+    {
+        binthresh = 40;
+        _binPopText.stringValue = @"40";
+
+    }
+    float colthresh = _colorSimText.floatValue;
+    if (colthresh <= 0)
+    {
+        colthresh = 0.15;
+        _colorSimText.stringValue = @"0.15";
+    }
+
+    csugg.binThresh = binthresh;
+    csugg.rgbDiffThresh = colthresh;
+    
+    [csugg load:workImage];
+    numReducedColors = [csugg getReducedCount];
+    if (numReducedColors < 4)
+    {
+        [self displayTooFewColorsError : numReducedColors];
+    }
+    [self updateSwatchesAndCrosshairs];
+
+} //end tetraSelect
 
 
 //===HDKTetra===================================================================
@@ -203,6 +265,7 @@ int pixelSelectX,pixelSelectY;
 {
     whichWell = 1;
     [self updateWell:whichWell :[((NSColorWell *)sender) color]];
+    [self selectCrosshair:whichWell];
 }
 
 
@@ -211,7 +274,7 @@ int pixelSelectX,pixelSelectY;
 {
     whichWell = 2;
     [self updateWell:whichWell :[((NSColorWell *)sender) color]];
-    
+    [self selectCrosshair:whichWell];
 }
 
 
@@ -220,6 +283,7 @@ int pixelSelectX,pixelSelectY;
 {
     whichWell = 3;
     [self updateWell:whichWell :[((NSColorWell *)sender) color]];
+    [self selectCrosshair:whichWell];
 }
 
 
@@ -228,14 +292,15 @@ int pixelSelectX,pixelSelectY;
 {
     whichWell = 4;
     [self updateWell:whichWell :[((NSColorWell *)sender) color]];
+    [self selectCrosshair:whichWell];
 }
 
 //===HDKTetra===================================================================
 - (IBAction)tlSelect:(id)sender
 {
     [_TopLabel setStringValue:@"Selected Top Left..."];
-
     whichWell = 1;
+    [self selectCrosshair:whichWell];
 }
 
 //===HDKTetra===================================================================
@@ -243,6 +308,7 @@ int pixelSelectX,pixelSelectY;
 {
     [_TopLabel setStringValue:@"Selected Top Right..."];
     whichWell = 2;
+    [self selectCrosshair:whichWell];
 }
 
 //===HDKTetra===================================================================
@@ -250,6 +316,7 @@ int pixelSelectX,pixelSelectY;
 {
     [_TopLabel setStringValue:@"Selected Bottom Left..."];
     whichWell = 3;
+    [self selectCrosshair:whichWell];
 }
 
 
@@ -258,6 +325,7 @@ int pixelSelectX,pixelSelectY;
 {
     [_TopLabel setStringValue:@"Selected Bottom Right..."];
     whichWell = 4;
+    [self selectCrosshair:whichWell];
 }
 
 //===HDKTetra===================================================================
@@ -284,11 +352,38 @@ int pixelSelectX,pixelSelectY;
 }
 
 //===HDKTetra===================================================================
+// starting hist vals are : ff0000: 22,332 (white?)
+-(void) updateXYLabel: (int) which : (int) newx : (int) newy
+{
+    int invy = 512 - newy; //DO I NEED THIS?
+    NSString *lstr = [NSString stringWithFormat:@"%d,%d",newx,newy];
+    switch(which)
+    {
+        case 1:
+            [_xylabel00 setStringValue:lstr];
+            break;
+        case 2:
+            [_xylabel01 setStringValue:lstr];
+            break;
+        case 3:
+            [_xylabel02 setStringValue:lstr];
+            break;
+        case 4:
+            [_xylabel03 setStringValue:lstr];
+            break;
+    }
+    
+}
+
+//===HDKTetra===================================================================
 -(void) updateCrossHair: (int) which : (int) newx : (int) newy
 {
     int xpos,ypos;
+    
+    //NSLog(@" update crosshair %d xy %d %d ww/h %d %d",which,newx,newy,workImageWidth,workImageHeight);
+    int invy = workImageHeight - newy;
     xpos = imageLeft  + newx - crosswh*0.5 ;
-    ypos = imageTop   + newy - crosswh*0.5 ;
+    ypos = imageTop   + invy - crosswh*0.5 ;
     CGRect frame =  CGRectMake(xpos, ypos, crosswh, crosswh);
     switch(which)
     {
@@ -309,12 +404,60 @@ int pixelSelectX,pixelSelectY;
 } //end updateCrossHair
 
 //===HDKTetra===================================================================
+// Get histogram data and updates swatches...   asdf
+-(void) updateSwatchesAndCrosshairs
+{
+    NSColor *reducedColor1;
+    NSColor *reducedColor2;
+    NSColor *reducedColor3;
+    NSColor *reducedColor4;
+    CGPoint rpt1;
+    CGPoint rpt2;
+    CGPoint rpt3;
+    CGPoint rpt4;
+    
+    
+    reducedColor1 = [csugg getNthReducedColor:0];
+    reducedColor2 = [csugg getNthReducedColor:1];
+    reducedColor3 = [csugg getNthReducedColor:2];
+    reducedColor4 = [csugg getNthReducedColor:3];
+    
+    rpt1 = [csugg getNthReducedXY:0];
+    rpt2 = [csugg getNthReducedXY:1];
+    rpt3 = [csugg getNthReducedXY:2];
+    rpt4 = [csugg getNthReducedXY:3];
+    
+    //NSLog(@" updateswatches %@ %@ %@ %@",reducedColor1,reducedColor2,reducedColor3,reducedColor4);
+    
+    [self updateWell : 1 : reducedColor1];
+    [self updateWell : 2 : reducedColor2];
+    [self updateWell : 3 : reducedColor3];
+    [self updateWell : 4 : reducedColor4];
+    
+    NSLog(@" xy 1234 %f,%f : %f,%f : %f,%f : %f,%f",rpt1.x,rpt1.y,rpt2.x,rpt2.y,rpt3.x,rpt3.y,rpt4.x,rpt4.y);
+    
+    [self updateCrossHair: 1 : rpt1.x : rpt1.y];
+    [self updateCrossHair: 2 : rpt2.x : rpt2.y];
+    [self updateCrossHair: 3 : rpt3.x : rpt3.y];
+    [self updateCrossHair: 4 : rpt4.x : rpt4.y];
+    
+    [self updateXYLabel  : 1 : rpt1.x : rpt1.y];
+    [self updateXYLabel  : 2 : rpt2.x : rpt2.y];
+    [self updateXYLabel  : 3 : rpt3.x : rpt3.y];
+    [self updateXYLabel  : 4 : rpt4.x : rpt4.y];
+
+    
+} //end updateSwatchesAndCrosshairs
+
+//===HDKTetra===================================================================
 -(void) updateWell : (int) which : (NSColor *)color
 {
+    if (color == nil) return;
     float r,g,b;
     r = color.redComponent;
     g = color.greenComponent;
     b = color.blueComponent;
+    //NSLog(@" update well %d color %@",which,color);
     
     NSString *cstr = [self getHexFromColor : color];
 
@@ -338,8 +481,9 @@ int pixelSelectX,pixelSelectY;
             break;
     }
 
-}
+} //end updateWell
 
+//===HDKGenerator===================================================================
 - (void)mouseMoved:(NSEvent *)event
 {
     NSLog(@" mm VC");
@@ -389,6 +533,74 @@ int pixelSelectX,pixelSelectY;
     [target unlockFocus];
     
     return target;
+} //end cropToSquare
+
+//===HDKGenerator===================================================================
+// makes selected crosshair yellow: others are white
+-(void) selectCrosshair : (int) which
+{
+    NSLog(@" select Crosshair %d",which);
+    switch(which)
+    {
+        case 1:
+            _crossHair00.image = circCrosshair;
+            _crossHair01.image = squareCrosshair;
+            _crossHair02.image = squareCrosshair;
+            _crossHair03.image = squareCrosshair;
+            break;
+        case 2:
+            _crossHair00.image = squareCrosshair;
+            _crossHair01.image = circCrosshair;
+            _crossHair02.image = squareCrosshair;
+            _crossHair03.image = squareCrosshair;
+            break;
+        case 3:
+            _crossHair00.image = squareCrosshair;
+            _crossHair01.image = squareCrosshair;
+            _crossHair02.image = circCrosshair;
+            _crossHair03.image = squareCrosshair;
+            break;
+        case 4:
+            _crossHair00.image = squareCrosshair;
+            _crossHair01.image = squareCrosshair;
+            _crossHair02.image = squareCrosshair;
+            _crossHair03.image = circCrosshair;
+            break;
+    }
+    
+} //end selectCrosshair
+
+//===HDKGenerator===================================================================
+-(void) displayTooFewColorsError : (int) numcolors
+{
+    NSString *errmsg = [NSString stringWithFormat:@" Not enough colors found, need 4, only found %d \n Try lowering the Color Similarity Threshold",numcolors];
+    [self displayError:errmsg];
 }
+
+
+//===HDKGenerator===================================================================
+-(void) displayError : (NSString *) errmsg
+{
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSInformationalAlertStyle];
+    [alert setMessageText:@"Error..."];
+    [alert setInformativeText:errmsg];
+     
+     [alert beginSheetModalForWindow:self.view.window
+                       modalDelegate:self
+      
+                      didEndSelector:@selector(testDatabaseConnectionDidEnd:returnCode:
+                                               contextInfo:)
+                         contextInfo:nil];
+     }
+     
+//===HDKGenerator===================================================================
+     - (void)testDatabaseConnectionDidEnd:(NSAlert *)alert
+                   returnCode:(int)returnCode contextInfo:(void *)contextInfo
+    {
+      //  NSLog(@"clicked %d button\n", returnCode);
+        
+    }
+
 
 @end
