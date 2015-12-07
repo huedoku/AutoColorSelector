@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HDKTetra/ViewController.m"
-            timestampString = "471137690.264976"
+            timestampString = "471225215.418697"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "520"
-            endingLineNumber = "520"
+            startingLineNumber = "539"
+            endingLineNumber = "539"
             landmarkName = "-updateSwatchesAndCrosshairs"
             landmarkType = "5">
          </BreakpointContent>

@@ -69,13 +69,9 @@
 		72463B2B1C0632C4003B43BF = {
 			isa = PBXGroup;
 			children = (
-				72463B5A1C064E62003B43BF /* Quartz.framework */,
-				72463B581C064E2A003B43BF /* CoreImage.framework */,
-				72463B561C064E21003B43BF /* ImageIO.framework */,
-				72463B541C064E15003B43BF /* ImageCaptureCore.framework */,
-				72463B521C064DCF003B43BF /* Cocoa.framework */,
-				72463B4B1C063680003B43BF /* Resources */,
 				72463B361C0632C4003B43BF /* AutoColor */,
+				72463B4B1C063680003B43BF /* Resources */,
+				72FDEB991C163DB100C90113 /* Frameworks */,
 				72463B351C0632C4003B43BF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -125,6 +121,18 @@
 				72463B4C1C06368F003B43BF /* testPattern00.png */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		72FDEB991C163DB100C90113 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				72463B5A1C064E62003B43BF /* Quartz.framework */,
+				72463B581C064E2A003B43BF /* CoreImage.framework */,
+				72463B561C064E21003B43BF /* ImageIO.framework */,
+				72463B541C064E15003B43BF /* ImageCaptureCore.framework */,
+				72463B521C064DCF003B43BF /* Cocoa.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

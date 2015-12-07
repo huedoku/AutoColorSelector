@@ -13,6 +13,8 @@
 //
 //  NOTE!!! all properties with pointers MUST BE CAST strong!
 //             otherwise the code runs but krashes!
+//          This version is similar to but different from the iOS
+//            version, be careful cross-integrating!
 
 #import <Foundation/Foundation.h>
 //We need this for iOS apps (Switch NSColor to UIColor)

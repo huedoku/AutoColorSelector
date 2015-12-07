@@ -10,6 +10,9 @@
 //  ColorSuggester.h
 //  Huedoku Pix
 //
+//  NOTE:    This version is similar to but different from the iOS
+//            version, be careful cross-integrating!
+//
 //  Created by Dave Scruton on 11/4/15.
 //  Copyright © 2015 huedoku, inc. All rights reserved.
 //
@@ -49,15 +52,17 @@
     
     NSMutableArray *topTenColors;
     CGPoint topTenXY[TOPTENCOUNT];
-
+    int topTenPopulations[TOPTENCOUNT];
     NSMutableArray *reducedColors;
     CGPoint reducedXY[TOPTENCOUNT];
-
+    int reducedPopulations[TOPTENCOUNT];
     int topTenLocations[32];
 }
 
 @property (nonatomic , assign) int       binThresh;
 @property (nonatomic , assign) float     rgbDiffThresh;
+@property (nonatomic , assign) int       binCount;
+@property (nonatomic , assign) int       binAfterThreshCount;
 
 //@property (nonatomic , strong) NSString* fromUser;
 //@property (nonatomic , assign) int       uniquePuzzleId;
@@ -69,10 +74,14 @@
 -(NSColor *) getNthPopularColor: (int) n;
 -(CGPoint) getNthReducedXY : (int) n;
 -(NSColor *) getNthReducedColor: (int) n;
+-(int) getNthReducedPopulation : (int) n;
 //-(ColorSuggester *)    copy;
 -(int) getWidth1;
 -(int) getHeight1;
 -(int) getReducedCount;
+
+-(int) getBinCount;
+-(int) getBinsAfterThreshCount;
 
 
 @end

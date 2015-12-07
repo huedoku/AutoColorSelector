@@ -1,4 +1,10 @@
 //
+//  __     ___                ____            _             _ _
+//  \ \   / (_) _____      __/ ___|___  _ __ | |_ _ __ ___ | | | ___ _ __
+//   \ \ / /| |/ _ \ \ /\ / / |   / _ \| '_ \| __| '__/ _ \| | |/ _ \ '__|
+//    \ V / | |  __/\ V  V /| |__| (_) | | | | |_| | | (_) | | |  __/ |
+//     \_/  |_|\___| \_/\_/  \____\___/|_| |_|\__|_|  \___/|_|_|\___|_|
+//
 //  ViewController.h
 //  HDKTetra
 //
@@ -47,6 +53,7 @@
 @property (weak) IBOutlet NSTextField *binPopText;
 @property (weak) IBOutlet NSTextField *colorSimText;
 @property (weak) IBOutlet NSTextField *blockSizeText;
+@property (weak) IBOutlet NSTextField *logOutput;
 
 @end
 

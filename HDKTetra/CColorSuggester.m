@@ -9,6 +9,9 @@
 //  ColorSuggester.m
 //  Huedoku Pix
 //
+//  NOTE:    This version is similar to but different from the iOS
+//            version, be careful cross-integrating!
+//
 //  Created by Dave Scruton on 11/4/15.
 //  Copyright © 2015 huedoku, inc. All rights reserved.
 //
@@ -418,7 +421,16 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
         }
     }
     
+    //Get # bins with anything in them at all...
+    _binCount = 0;
+    for (i=0;i<MAX_HIST_BINS;i++)
+    {
+        if (bins[i] > 0) _binCount++;
+    }
+    
+    
     int hcount = 0;
+    _binAfterThreshCount = 0;
     // Loop over ALL our bins we found, add results to output arrays...
     ssize = 0;
     hthresh = _binThresh;
@@ -442,13 +454,14 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
             //colory = colorIndex/width1;
             ssize++;
             hcount++;
+            _binAfterThreshCount++;
             if (hverbose == 2) NSLog(@"  bin[%d] pop %d color (%d,%d,%d) index:%d",i,bins[i],red,green,blue,colorIndex);
         }
         //if (ssize > 100) break; //We don't need that many bins...
     }
     //Quick/dirty sort: find top ten populations
     for (i=0;i<TOPTENCOUNT;i++) topTenLocations[i] = -1;
-    if (hverbose > 0) NSLog(@" thresh produced %d bins",ssize);
+    NSLog(@" ...Threshold produced %d bins",ssize);
     if (hverbose == 2)
     {
         for (i=0;i<ssize;i++)
@@ -501,6 +514,7 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
         colorx = colorIndex%width1;
         colory = colorIndex/width1;
         topTenXY[i] = CGPointMake(colorx,colory);
+        topTenPopulations[i] = populations[jj];
         //pull rgb components out
         if (hverbose)
         {
@@ -622,6 +636,7 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
             if (!found) //No match, add to reduced array...
             {
                 [reducedColors addObject:tmpc1]; //Add our color...
+                reducedPopulations[rcount] = topTenPopulations[i];
                 reducedXY[rcount].x = topTenXY[i].x;
                 reducedXY[rcount].y = topTenXY[i].y;
                 rcount++;
@@ -640,7 +655,7 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
         red        = (int)(255*components[0]);
         green      = (int)(255*components[1]);
         blue       = (int)(255*components[2]);
-        if (hverbose) NSLog(@" reduced[%d] (%d,%d,%d) : %f,%f",i,red,green,blue,reducedXY[i].x,reducedXY[i].y);
+        NSLog(@" ...reduced[%2d] (%3.3d,%3.3d,%3.3d) : %5.2f,%5.2f pop: %d",i,red,green,blue,reducedXY[i].x,reducedXY[i].y,reducedPopulations[i]);
     }
     NSLog(@" ...found %d reduced colors",(int)reducedColors.count);
 }  //end reduceColors
@@ -667,6 +682,13 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
     if (hverbose) NSLog(@" get reducedColor %@",[reducedColors objectAtIndex:n]);
     return [reducedColors objectAtIndex:n];
 } //end getNthPopularCooor
+
+//=====[ColorSuggester]======================================================================
+-(int) getNthReducedPopulation : (int) n
+{
+    if (n < 0 || n >= [reducedColors count]) return [NSColor blackColor];
+    return reducedPopulations[n];
+}
 
 
 

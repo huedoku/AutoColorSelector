@@ -8,6 +8,9 @@
 //  HDKGenerate (pulled from HDKGenerator)
 //  HuedokuPix
 //
+//  NOTE:    This version is similar to but different from the iOS
+//            version, be careful cross-integrating!
+//
 //  Created by Dave Scruton on 8/1/15.
 //  Copyright (c) 2015 huedoku, inc. All rights reserved.
 //  DHS 8/5/15: Pulled in HDK relative luminance calculations..

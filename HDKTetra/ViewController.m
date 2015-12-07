@@ -1,4 +1,11 @@
 //
+//  __     ___                ____            _             _ _
+//  \ \   / (_) _____      __/ ___|___  _ __ | |_ _ __ ___ | | | ___ _ __
+//   \ \ / /| |/ _ \ \ /\ / / |   / _ \| '_ \| __| '__/ _ \| | |/ _ \ '__|
+//    \ V / | |  __/\ V  V /| |__| (_) | | | | |_| | | (_) | | |  __/ |
+//     \_/  |_|\___| \_/\_/  \____\___/|_| |_|\__|_|  \___/|_|_|\___|_|
+//
+//
 //  ViewController.m
 //  HDKTetra
 //
@@ -63,6 +70,7 @@ int pixelSelectX,pixelSelectY;
     _binPopText.stringValue = @"40";
     _colorSimText.stringValue = @"0.15";
     _blockSizeText.stringValue = @"1";
+    
 } //end viewDidLoad
 
 
@@ -124,6 +132,8 @@ int pixelSelectX,pixelSelectY;
     }
     
     [self updateSwatchesAndCrosshairs];
+    [self updateLogOutput];
+
 } //end viewdidappear
 
 
@@ -190,41 +200,48 @@ int pixelSelectX,pixelSelectY;
 //===HDKTetra===================================================================
 -(void)tweakit
 {
+    int verbose = 0;
     int x,y,i;
     NSData *data = [originalImage TIFFRepresentation];
+    
+  //  NSColorSpace *cspace;
+    
+  //  cspace = [originalImage.
+    
     int iwid = originalImage.size.width;
     //OK at this point mb actually has the TIFF raw data.
     //  NOTE first 8 bytes are reserved for TIFF header!
     unsigned char * mb = [data bytes];
     int blen = [data length];
     int rowsize = 3*iwid;
+    int numpixels = originalImage.size.width * originalImage.size.height;
+
+    int numchannels = blen / numpixels;
+
+    rowsize = numchannels * iwid;
+    
+    
+    NSLog(@" blen %d iwid %d np %d 3np %d 4np %d numchannels: %d",blen,iwid,numpixels,3*numpixels,4*numpixels,numchannels);
     
     //Copy to 2nd buffer...
     unsigned char *mb2 = (unsigned char *) malloc(blen);
     for (i=0;i<blen;i++) mb2[i] = mb[i];
     
-    
+ 
     NSBitmapImageRep* imageRep = [[NSBitmapImageRep alloc] initWithData:[workImage TIFFRepresentation]];
-//    NSColor* color = [imageRep colorAtX:pixelSelectX y:imageHeight - pixelSelectY];  asdf
-    x = 10;y = 10;
-//    for (i=0;i<512;i++)
-//    {
-//        int i3 = tiffHeaderSize + 3*i;
-//
-//        NSLog(@" data[%d] rgb %x,%x,%x",i,mb[i3],mb[i3+1],mb[i3+2]);
-//        //    [imageRep setColor:[NSColor blackColor] atX:i y:i];
-//    }
+    //    NSColor* color = [imageRep colorAtX:pixelSelectX y:imageHeight - pixelSelectY];  asdf
+    if (verbose)
+    {
+        x = 10;y = 10;
+        for (i=0;i<512;i++)
+        {
+            int i3 = tiffHeaderSize + numchannels*i;
+            
+            NSLog(@" data[%d] rgb %x,%x,%x",i,mb[i3],mb[i3+1],mb[i3+2]);
+        }
+        
+    }
     
-    //Add a black stripe...
-//    int iptr = 0;
-//    for (i=0;i<200;i++)
-//    {
-//        iptr = tiffHeaderSize + i + i*rowsize;
-//        mb[iptr]  = 0;
-//        mb[iptr+1]  = 0;
-//        mb[iptr+2]  = 0;
-//    }
-
     
     int mag = _blockSizeText.intValue;
     if (mag <= 0) mag = 1;
@@ -242,7 +259,7 @@ int pixelSelectX,pixelSelectY;
         for(loopx=0;loopx<workImageWidth;loopx+=mag)
         {
          //   -(void) pixelBlock : (unsigned char *) inbuf: (unsigned char *) outbuf : (int) x : (int) y : (int) rowsize : (int) magnification
-            [self pixelBlock: mb :mb2 :loopx :loopy :rowsize : mag];
+            [self pixelBlock: mb :mb2 :loopx :loopy : numchannels : rowsize : mag];
         } //end loopx
     } //end loopy
     
@@ -257,26 +274,26 @@ int pixelSelectX,pixelSelectY;
 } //end tweakit
 
 //===HDKTetra===================================================================
--(void) pixelBlock : (unsigned char *) inbuf: (unsigned char *) outbuf : (int) x : (int) y : (int) rowsize : (int) magnification
+-(void) pixelBlock : (unsigned char *) inbuf: (unsigned char *) outbuf : (int) x : (int) y : (int) numchannels : (int) rowsize : (int) magnification
 {
     unsigned char r,g,b;
     int iptr,optr;
     int loopx,loopy;
     
-    iptr = tiffHeaderSize + (3*x) + (rowsize*y);
+    iptr = tiffHeaderSize + (numchannels*x) + (rowsize*y);
     r = inbuf[iptr];
     g = inbuf[iptr+1];
     b = inbuf[iptr+2];
     
     for (loopy = 0;loopy < magnification;loopy++)
     {
-        optr =  tiffHeaderSize + (3 * x) + (rowsize * (y + loopy)); //Starting pointer for our block
+        optr =  tiffHeaderSize + (numchannels * x) + (rowsize * (y + loopy)); //Starting pointer for our block
         for (loopx = 0;loopx < magnification;loopx++)
         {
             outbuf[optr]   = r;
             outbuf[optr+1] = g;
             outbuf[optr+2] = b;
-            optr+=3;
+            optr+=numchannels;
         }
     }
     
@@ -316,7 +333,7 @@ int pixelSelectX,pixelSelectY;
         imageView.image = workImage;
         workImageWidth  = workImage.size.width;
         workImageHeight = workImage.size.height;
-
+        [self updateTopLabelWithImageStats];
         [csugg load:workImage];
         numReducedColors = [csugg getReducedCount];
         if (numReducedColors < 4)
@@ -324,7 +341,7 @@ int pixelSelectX,pixelSelectY;
             [self displayTooFewColorsError : numReducedColors];
         }
         [self updateSwatchesAndCrosshairs];
-        
+        [self updateLogOutput];
     }
     
 } //end pictureTakerDidEnd
@@ -357,6 +374,8 @@ int pixelSelectX,pixelSelectY;
         [self displayTooFewColorsError : numReducedColors];
     }
     [self updateSwatchesAndCrosshairs];
+    [self updateTopLabelWithImageStats];
+    [self updateLogOutput];
 
 } //end tetraSelect
 
@@ -556,14 +575,37 @@ int pixelSelectX,pixelSelectY;
     
 } //end updateSwatchesAndCrosshairs
 
+
+//===HDKTetra===================================================================
+-(void) updateTopLabelWithImageStats
+{
+    NSString *istr = [NSString stringWithFormat:@"Image xy %d,%d size %d",workImageWidth,workImageHeight,workImageWidth*workImageHeight];
+    _TopLabel.stringValue = istr;
+} //end updateTopLabelWithImageStats
+
+
 //===HDKTetra===================================================================
 -(void) updateWell : (int) which : (NSColor *)color
 {
     if (color == nil) return;
+    NSColorSpace *cspace;
+    cspace = color.colorSpace;
+//    NSLog(@" colorspace is %@",cspace);
+    
     float r,g,b;
-    r = color.redComponent;
-    g = color.greenComponent;
-    b = color.blueComponent;
+    int cerr = 0;
+    @try {
+        r = color.redComponent;
+        g = color.greenComponent;
+        b = color.blueComponent;
+        cerr = 0;
+    }
+    @catch (NSException *exception) {
+        NSLog(@" error: bad colorspace %@",cspace);
+        cerr = 1;
+    }
+    if (cerr) return;
+    
     //NSLog(@" update well %d color %@",which,color);
     
     NSString *cstr = [self getHexFromColor : color];
@@ -709,5 +751,47 @@ int pixelSelectX,pixelSelectY;
         
     }
 
+
+//===HDKGenerator===================================================================
+-(void) updateLogOutput
+{
+
+    int i,rcount,rpop;
+    CGPoint rpoint;
+    NSColor *rcolor;
+    float r,g,b;
+    
+    rcount = [csugg getReducedCount];
+    NSString *dumpit;
+    NSString *nextit;
+    
+    dumpit = @"Histogram Run...\n";
+
+    nextit = [NSString stringWithFormat:@"Found %d Colors Overall\n",csugg.binCount];
+    dumpit = [dumpit stringByAppendingString:nextit];
+    nextit = [NSString stringWithFormat:@"Down to %d Colors After Thresh...\n",csugg.binAfterThreshCount];
+    dumpit = [dumpit stringByAppendingString:nextit];
+
+    
+    
+    nextit = [NSString stringWithFormat:@"Down to %d Reduced Colors after Similarity check...\n",rcount];
+    dumpit = [dumpit stringByAppendingString:nextit];
+    
+    for (i=0;i<rcount;i++)
+    {
+        rpop   = [csugg getNthReducedPopulation:i];
+        rpoint = [csugg getNthReducedXY:i];
+        rcolor = [csugg getNthReducedColor:i];
+        
+        r = rcolor.redComponent;
+        g = rcolor.greenComponent;
+        b = rcolor.blueComponent;
+
+        nextit = [NSString stringWithFormat:@"[%d] RGB (%3.3d,%3.3d,%3.3d) XY %4.4d,%4.4d  Pop: %d\n",
+                  1+i,(int)(255.0*r),(int)(255.0*g),(int)(255.0*b),(int)rpoint.x,(int)rpoint.y,rpop];
+        dumpit = [dumpit stringByAppendingString:nextit];
+    }
+    _logOutput.stringValue = dumpit;
+} //end updateLogOutput
 
 @end
