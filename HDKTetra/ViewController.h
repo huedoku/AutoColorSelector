@@ -29,6 +29,7 @@
 - (IBAction)brSelect:(id)sender;
 - (IBAction)crosshairSelect:(id)sender;
 - (IBAction)testSelect:(id)sender;
+- (IBAction)algoSelect:(id)sender;
 
 @property (weak) IBOutlet NSColorWell *tlSwatch;
 @property (weak) IBOutlet NSColorWell *trSwatch;

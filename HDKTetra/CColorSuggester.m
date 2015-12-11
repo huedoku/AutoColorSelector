@@ -72,11 +72,14 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
         
         _binThresh = 40;
         _rgbDiffThresh = 0.15;
+        
+        _whichAlgo = ALGO_HISTOGRAM;
 
     }
     
     return self;
 } //end init
+
 
 
 //=====[ColorSuggester]======================================================================
@@ -85,13 +88,21 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
     workImage1 = input; //Does this copy it in???
     width1     = workImage1.size.width;
     height1    = workImage1.size.height;
-    if (hverbose) NSLog(@" loading wh %d %d",width1,height1);
+    NSLog(@" AutoColor Loading for algo %d wh %d %d",_whichAlgo,width1,height1);
     cArray1 = (int *)malloc(3*width1*height1*sizeof(int));
     [self getRGBAsFromImage:workImage1];
     [self analyze];
+    //Histogram is used in more than one algo...
     [self createHistogram];
     //NO NEED NOW[self findTopTenColorsXY];
-    [self reduceColors];
+    if (_whichAlgo == ALGO_HISTOGRAM)
+    {
+        [self reduceColors];
+    }
+    else if (_whichAlgo == ALGO_OPPOSITE12)
+    {
+        [self findOpposites];
+    }
     if (hverbose) [self dump];
     free(cArray1);
 
@@ -604,6 +615,130 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
 } //end getNthPopularCooor
 
 //=====[ColorSuggester]======================================================================
+// Gets most popular color, then finds another popular color that has the farthest
+//   color distance;  then repeats for 2nd most popular color
+-(void) findOpposites
+{
+    int i,count,maxindex,middleindex,middleoppositeindex,rcount;
+    BOOL found;
+    float maxdist,cdist;
+    float middledist,middletoler;
+    NSColor *tmpc1;
+    NSColor *tmpc2;
+
+    rcount = 0;
+    [reducedColors removeAllObjects];
+
+    count = topTenColors.count;
+    tmpc1 = [topTenColors objectAtIndex:0]; //Most popular color
+    [reducedColors addObject:tmpc1]; //Add our color...
+    reducedPopulations[rcount] = topTenPopulations[0];
+    reducedXY[rcount].x = topTenXY[0].x;
+    reducedXY[rcount].y = topTenXY[0].y;
+    rcount++;
+    NSLog(@" most popular color %@",tmpc1);
+    maxdist = -999;
+    maxindex = 0;
+    for (i=1;i<count;i++)
+    {
+        tmpc2 = [topTenColors objectAtIndex:i];
+        cdist = [self colorDistance:tmpc1 :tmpc2];
+        //NSLog(@"   ....vs. index[%d] c2 %@ dist %f",i,tmpc2,cdist);
+        if (cdist > maxdist)
+        {
+            maxdist  = cdist;
+            maxindex = i;
+        }
+    } //end for i
+    NSLog(@" mostpopular color %@",tmpc1);
+    tmpc2 = [topTenColors objectAtIndex:maxindex];
+    //Add to our reduced results...
+    [reducedColors addObject:tmpc2]; //Add our opposite color...
+    reducedPopulations[rcount] = topTenPopulations[maxindex];
+    reducedXY[rcount].x = topTenXY[maxindex].x;
+    reducedXY[rcount].y = topTenXY[maxindex].y;
+    rcount++;
+    NSLog(@" its opposite is[%d] %@ dist %f",maxindex,tmpc2,maxdist);
+    
+    //Now find "second" color... assume it will be in the "middle" of the overall color distance spread...
+    found = FALSE;
+    middledist = maxdist/2.0;
+    middletoler = maxdist / 4.0;
+    NSLog(@"median range %f to %f",middledist - middletoler, middledist + middletoler);
+    int iteration = 0;
+    cdist = middleindex = 0;
+    while (!found)
+    {
+        for (i=1;i<count && !found;i++)
+        {
+            if (i != maxindex)
+            {
+                tmpc2 = [topTenColors objectAtIndex:i];
+                cdist = [self colorDistance:tmpc1 :tmpc2];
+                //NSLog(@"   next dist %f",cdist);
+                if ((cdist > middledist-middletoler) &&  (cdist < middledist+middletoler))
+                {
+                    //NSLog(@" found median at %d",i);
+                    middleindex = i;
+                    found = TRUE;
+                }
+            } //end if i
+        } //end for i
+        if (!found) middletoler*=1.5;
+        iteration++;
+    } //end while !found
+    if (found)
+    {
+        tmpc2 = [topTenColors objectAtIndex:middleindex];
+        NSLog(@" after %d iters median found at index %d %@ dist %f",iteration,middleindex, tmpc2,cdist);
+    }
+    else //THIS IS A PROBLEM!!!
+    {
+        middleindex = 1;
+        if (middleindex == maxindex) middleindex = 2;
+        NSLog(@" no median found! assume middle at %d",middleindex);
+    }
+    //Add to our reduced results...
+    tmpc1 = [topTenColors objectAtIndex:middleindex];
+    [reducedColors addObject:tmpc1]; //Add our color...
+    reducedPopulations[rcount] = topTenPopulations[middleindex];
+    reducedXY[rcount].x = topTenXY[middleindex].x;
+    reducedXY[rcount].y = topTenXY[middleindex].y;
+    rcount++;
+    
+    //OK, find opposite to the "middle"...
+    tmpc1 = [topTenColors objectAtIndex:middleindex];
+    NSLog(@" compute opposite to middle color %@",tmpc1);
+    maxdist = -999;
+    middleoppositeindex = 0;
+    for (i=1;i<count;i++)
+    {
+        if (i != maxindex && i != middleindex)
+        {
+            tmpc2 = [topTenColors objectAtIndex:i];
+            cdist = [self colorDistance:tmpc1 :tmpc2];
+            //NSLog(@"  ....vs. index[%d] c2 %@ dist %f",i,tmpc2,cdist);
+            if (cdist > maxdist)
+            {
+                maxdist  = cdist;
+                middleoppositeindex = i;
+                //NSLog(@" new opposite at %d",i);
+            }
+        } //end if i
+    } //end for i
+    
+    tmpc2 = [topTenColors objectAtIndex:middleoppositeindex];
+    NSLog(@" middle opposite is[%d] %@ dist %f",middleoppositeindex,tmpc2,maxdist);
+    [reducedColors addObject:tmpc2]; //Add our color...
+    reducedPopulations[rcount] = topTenPopulations[middleoppositeindex];
+    reducedXY[rcount].x = topTenXY[middleoppositeindex].x;
+    reducedXY[rcount].y = topTenXY[middleoppositeindex].y;
+    rcount++;
+
+    
+} //end findOpposites
+
+//=====[ColorSuggester]======================================================================
 // Takes our 'top ten' colors and reduces them; pulls colors that are
 //   similar to each other out of contention... stashes results into
 //   reducedColors array; we are looking for FOUR RESULTS...
@@ -686,9 +821,27 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
 //=====[ColorSuggester]======================================================================
 -(int) getNthReducedPopulation : (int) n
 {
-    if (n < 0 || n >= [reducedColors count]) return [NSColor blackColor];
+    if (n < 0 || n >= [reducedColors count]) return 0;
     return reducedPopulations[n];
 }
+
+
+
+//=====[ColorSuggester]======================================================================
+-(float) colorDistance : (NSColor *)c1 : (NSColor *) c2
+{
+    float distance = 0.0;
+    float rdel,gdel,bdel;
+    const CGFloat* components1;
+    const CGFloat* components2;
+    components1 = CGColorGetComponents(c1.CGColor);
+    components2 = CGColorGetComponents(c2.CGColor);
+    rdel = components1[0] - components2[0];
+    gdel = components1[1] - components2[1];
+    bdel = components1[2] - components2[2];
+    distance = sqrtf( rdel*rdel + gdel*gdel + bdel*bdel);
+    return distance;
+} //end colorDistance
 
 
 

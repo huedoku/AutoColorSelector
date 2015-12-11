@@ -27,6 +27,8 @@
 
 int whichWell;
 
+int whichAlgo;
+
 NSImage *workImage;
 NSImage *originalImage;
 int workImageWidth,workImageHeight;
@@ -45,7 +47,7 @@ NSButton *cross1;
 NSButton *cross2;
 NSButton *cross3;
 NSButton *cross4;
-
+NSComboBox *cbox;
 
 
 int crosswh;
@@ -70,7 +72,8 @@ int pixelSelectX,pixelSelectY;
     _binPopText.stringValue = @"40";
     _colorSimText.stringValue = @"0.15";
     _blockSizeText.stringValue = @"1";
-    
+    whichAlgo = ALGO_HISTOGRAM;
+
 } //end viewDidLoad
 
 
@@ -83,7 +86,7 @@ int pixelSelectX,pixelSelectY;
     cross2 = (NSButton *) [[self view] viewWithTag:201];
     cross3 = (NSButton *) [[self view] viewWithTag:202];
     cross4 = (NSButton *) [[self view] viewWithTag:203];
-    
+    cbox   = (NSComboBox *) [[self view] viewWithTag:2000];
     CGRect frame;
     
     //Get image display area from imageview...
@@ -124,6 +127,7 @@ int pixelSelectX,pixelSelectY;
     workImageWidth  = workImage.size.width;
     workImageHeight = workImage.size.height;
     
+    csugg.whichAlgo = whichAlgo;
     [csugg load:workImage];
     numReducedColors = [csugg getReducedCount];
     if (numReducedColors < 4)
@@ -349,7 +353,7 @@ int pixelSelectX,pixelSelectY;
 //===HDKTetra===================================================================
 - (IBAction)tetraSelect:(id)sender
 {
-    NSLog(@" run tetra...");
+    NSLog(@"Run AutoSelect algo...");
     int binthresh = _binPopText.intValue;
     if (binthresh == 0)
     {
@@ -366,6 +370,8 @@ int pixelSelectX,pixelSelectY;
 
     csugg.binThresh = binthresh;
     csugg.rgbDiffThresh = colthresh;
+    
+    
     
     [csugg load:workImage];
     numReducedColors = [csugg getReducedCount];
@@ -476,6 +482,30 @@ int pixelSelectX,pixelSelectY;
 {
     [self tweakit];
 }
+
+//===HDKTetra===================================================================
+- (IBAction)algoSelect:(id)sender
+{
+    NSString *astr = cbox.selectedCell.title;
+    if ([astr containsString:@"Histogram"])
+    {
+        whichAlgo = ALGO_HISTOGRAM;
+        _binPopText.enabled = TRUE;
+        _colorSimText.enabled = TRUE;
+    }
+    if ([astr containsString:@"Opposites 1 and 2"])
+    {
+        whichAlgo = ALGO_OPPOSITE12;
+        _binPopText.enabled = FALSE;
+        _colorSimText.enabled = FALSE;
+    }
+    csugg.whichAlgo = whichAlgo;
+    NSLog(@" algo select: %@ %d", astr,whichAlgo);
+
+} //end algoSelect
+
+
+
 
 //===HDKTetra===================================================================
 // starting hist vals are : ff0000: 22,332 (white?)
@@ -765,7 +795,10 @@ int pixelSelectX,pixelSelectY;
     NSString *dumpit;
     NSString *nextit;
     
-    dumpit = @"Histogram Run...\n";
+    if (whichAlgo == ALGO_HISTOGRAM)
+        dumpit = @"Histogram Run...\n";
+    else if (whichAlgo == ALGO_OPPOSITE12)
+        dumpit = @"Opposites1/2 Run...\n";
 
     nextit = [NSString stringWithFormat:@"Found %d Colors Overall\n",csugg.binCount];
     dumpit = [dumpit stringByAppendingString:nextit];

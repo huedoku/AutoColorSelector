@@ -19,6 +19,10 @@
 //#import <UIKit/UIKit.h>
 #import <Cocoa/Cocoa.h>
 
+
+#define ALGO_HISTOGRAM 101
+#define ALGO_OPPOSITE12 102
+
 #define TOPTENCOUNT 30
 @interface CColorSuggester : NSObject
 {
@@ -59,6 +63,7 @@
     int topTenLocations[32];
 }
 
+@property (nonatomic , assign) int       whichAlgo;
 @property (nonatomic , assign) int       binThresh;
 @property (nonatomic , assign) float     rgbDiffThresh;
 @property (nonatomic , assign) int       binCount;
@@ -79,9 +84,6 @@
 -(int) getWidth1;
 -(int) getHeight1;
 -(int) getReducedCount;
-
--(int) getBinCount;
--(int) getBinsAfterThreshCount;
 
 
 @end
