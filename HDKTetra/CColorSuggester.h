@@ -20,10 +20,13 @@
 #import <Cocoa/Cocoa.h>
 
 
-#define ALGO_HISTOGRAM 101
-#define ALGO_OPPOSITE12 102
+#define ALGO_HISTOGRAM          101
+#define ALGO_OPPOSITE12         102
+#define ALGO_HUEHISTOGRAM       103
+#define MAX_CLUMPS 256
+#define MAX_CLUMP_DATA 256
 
-#define TOPTENCOUNT 30
+#define TOPTENCOUNT 8192
 @interface CColorSuggester : NSObject
 {
     NSImage *workImage1;
@@ -57,10 +60,20 @@
     NSMutableArray *topTenColors;
     CGPoint topTenXY[TOPTENCOUNT];
     int topTenPopulations[TOPTENCOUNT];
+    int topTenColorIndices[TOPTENCOUNT];
     NSMutableArray *reducedColors;
     CGPoint reducedXY[TOPTENCOUNT];
     int reducedPopulations[TOPTENCOUNT];
-    int topTenLocations[32];
+    int topTenLocations[TOPTENCOUNT];
+    int topTenHues[TOPTENCOUNT];
+    int topTenHRGB[TOPTENCOUNT][3];
+    int numClumps;
+    int clumpPtrs[MAX_CLUMPS];
+    int clumpSizes[MAX_CLUMPS];
+    int clumpData[MAX_CLUMPS][MAX_CLUMP_DATA]; //Points to color data
+    int clumpXY[MAX_CLUMPS][MAX_CLUMP_DATA];
+    
+    
 }
 
 @property (nonatomic , assign) int       whichAlgo;
@@ -72,7 +85,7 @@
 //@property (nonatomic , strong) NSString* fromUser;
 //@property (nonatomic , assign) int       uniquePuzzleId;
 
--(void) load : (NSImage *) input;
+-(void) loadReduced : (unsigned char *) rgbarray : (int) w : (int) h;
 -(void) analyze;
 -(void)       dump;
 -(CGPoint) getNthPopularXY : (int) n;
@@ -84,6 +97,13 @@
 -(int) getWidth1;
 -(int) getHeight1;
 -(int) getReducedCount;
+-(NSString *) getAlgoDesc;
+
+-(void) algo_histogram :(NSImage *)input;
+-(void) algo_opposites :(NSImage *)input;
+-(void) algo_huehistogram :(NSImage *)input;
+
+
 
 
 @end

@@ -9,13 +9,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "HDKTetra/ViewController.m"
-            timestampString = "471488080.861048"
+            filePath = "HDKTetra/CColorSuggester.m"
+            timestampString = "472939157.611439"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "569"
-            endingLineNumber = "569"
-            landmarkName = "-updateSwatchesAndCrosshairs"
+            startingLineNumber = "155"
+            endingLineNumber = "155"
+            landmarkName = "-loadReduced:::"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

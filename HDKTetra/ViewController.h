@@ -15,6 +15,13 @@
 #import <Cocoa/Cocoa.h>
 
 @interface ViewController : NSViewController
+{
+    int binthresh;
+    float colthresh;
+    int blockSize;
+    int colorDepth;
+
+}
 - (IBAction)loadSelect:(id)sender;
 - (IBAction)tetraSelect:(id)sender;
 
@@ -55,6 +62,8 @@
 @property (weak) IBOutlet NSTextField *colorSimText;
 @property (weak) IBOutlet NSTextField *blockSizeText;
 @property (weak) IBOutlet NSTextField *logOutput;
+@property (weak) IBOutlet NSTextField *descriptionLabel;
+@property (weak) IBOutlet NSTextField *colorDepthText;
 
 @end
 

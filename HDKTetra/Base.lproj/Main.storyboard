@@ -713,8 +713,8 @@
                                 </textFieldCell>
                             </textField>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" tag="103" translatesAutoresizingMaskIntoConstraints="NO" id="QLV-5Q-MBa">
-                                <rect key="frame" x="6" y="163" width="512" height="512"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="testPattern00" id="jC2-b1-Coq"/>
+                                <rect key="frame" x="4" y="163" width="512" height="512"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="test2" id="jC2-b1-Coq"/>
                             </imageView>
                             <colorWell fixedFrame="YES" tag="106" translatesAutoresizingMaskIntoConstraints="NO" id="htJ-Js-IN5">
                                 <rect key="frame" x="543" y="548" width="40" height="40"/>
@@ -857,24 +857,48 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="clz-db-Vj1">
-                                <rect key="frame" x="534" y="350" width="101" height="17"/>
+                                <rect key="frame" x="531" y="350" width="101" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Pixel Blocksize" id="0Dm-Xz-IrN">
                                     <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eCn-an-T3n">
+                                <rect key="frame" x="528" y="323" width="112" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Pixel RGB Depth" id="NvE-Fj-84b">
+                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MgC-9s-LKZ">
-                                <rect key="frame" x="531" y="125" width="134" height="17"/>
+                                <rect key="frame" x="519" y="171" width="134" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="AutoColor Algorithm" id="B9d-bX-Usk">
                                     <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Y6g-It-P6j">
+                                <rect key="frame" x="521" y="30" width="174" height="108"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="left" title="AutoColor Algorithm" drawsBackground="YES" id="FhF-45-S3o">
+                                    <font key="font" size="9" name=".HelveticaNeueDeskInterface-Regular"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                </textFieldCell>
+                            </textField>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ksY-Xb-ahT">
                                 <rect key="frame" x="639" y="347" width="55" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="tRf-l6-95h">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OiZ-Sx-E4t">
+                                <rect key="frame" x="646" y="320" width="47" height="22"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="I9x-6v-CeH">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -888,18 +912,8 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" tag="101" translatesAutoresizingMaskIntoConstraints="NO" id="Ogu-z9-XzS">
-                                <rect key="frame" x="578" y="311" width="122" height="32"/>
-                                <buttonCell key="cell" type="push" title="Resize Pixels" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cej-ud-A6B">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="testSelect:" target="XfG-lQ-9wD" id="0Pv-Wq-02V"/>
-                                </connections>
-                            </button>
                             <button verticalHuggingPriority="750" fixedFrame="YES" tag="102" translatesAutoresizingMaskIntoConstraints="NO" id="d7t-AM-UpO">
-                                <rect key="frame" x="603" y="2" width="88" height="32"/>
+                                <rect key="frame" x="612" y="-2" width="88" height="32"/>
                                 <buttonCell key="cell" type="push" title="Analyze" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6E9-By-r84">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -908,8 +922,32 @@
                                     <action selector="tetraSelect:" target="XfG-lQ-9wD" id="nFr-Wv-xog"/>
                                 </connections>
                             </button>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uFh-lG-A9b">
+                                <rect key="frame" x="4" y="5" width="512" height="153"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="xfz-FF-yIC">
+                                    <font key="font" size="8" name=".HelveticaNeueDeskInterface-Regular"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <comboBox verticalHuggingPriority="750" fixedFrame="YES" tag="2000" translatesAutoresizingMaskIntoConstraints="NO" id="VDM-Xa-Usg">
+                                <rect key="frame" x="521" y="141" width="177" height="26"/>
+                                <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" title="Histogram" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="BrB-EZ-Pl8">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    <objectValues>
+                                        <string>Algo 1:Histogram</string>
+                                        <string>Algo 2:Opposites 1/2</string>
+                                        <string>Algo 3:Hue Histogram</string>
+                                    </objectValues>
+                                </comboBoxCell>
+                                <connections>
+                                    <action selector="algoSelect:" target="XfG-lQ-9wD" id="W9b-9f-Ts0"/>
+                                </connections>
+                            </comboBox>
                             <button verticalHuggingPriority="750" fixedFrame="YES" tag="101" translatesAutoresizingMaskIntoConstraints="NO" id="24u-VF-dNf">
-                                <rect key="frame" x="526" y="2" width="71" height="32"/>
+                                <rect key="frame" x="515" y="-2" width="86" height="32"/>
                                 <buttonCell key="cell" type="push" title="Load" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="56C-Mc-h9F">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -918,30 +956,16 @@
                                     <action selector="loadSelect:" target="XfG-lQ-9wD" id="udg-JF-kez"/>
                                 </connections>
                             </button>
-                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uFh-lG-A9b">
-                                <rect key="frame" x="6" y="9" width="512" height="153"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="xfz-FF-yIC">
-                                    <font key="font" size="8" name=".HelveticaNeueDeskInterface-Regular"/>
-                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <comboBox verticalHuggingPriority="750" fixedFrame="YES" tag="2000" translatesAutoresizingMaskIntoConstraints="NO" id="VDM-Xa-Usg">
-                                <rect key="frame" x="534" y="100" width="163" height="26"/>
-                                <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" title="Histogram" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="BrB-EZ-Pl8">
+                            <button verticalHuggingPriority="750" fixedFrame="YES" tag="101" translatesAutoresizingMaskIntoConstraints="NO" id="Ogu-z9-XzS">
+                                <rect key="frame" x="611" y="287" width="88" height="32"/>
+                                <buttonCell key="cell" type="push" title="Redraw" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cej-ud-A6B">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                    <objectValues>
-                                        <string>Histogram</string>
-                                        <string>Opposites 1 and 2</string>
-                                        <string>TBD</string>
-                                    </objectValues>
-                                </comboBoxCell>
+                                </buttonCell>
                                 <connections>
-                                    <action selector="algoSelect:" target="XfG-lQ-9wD" id="W9b-9f-Ts0"/>
+                                    <action selector="testSelect:" target="XfG-lQ-9wD" id="0Pv-Wq-02V"/>
                                 </connections>
-                            </comboBox>
+                            </button>
                         </subviews>
                     </view>
                     <connections>
@@ -952,11 +976,13 @@
                         <outlet property="blockSizeText" destination="ksY-Xb-ahT" id="DuT-0N-TXM"/>
                         <outlet property="brButton" destination="JVh-bu-ubR" id="hYc-fP-7qZ"/>
                         <outlet property="brSwatch" destination="3cs-tK-nTi" id="t8T-NI-kNM"/>
+                        <outlet property="colorDepthText" destination="OiZ-Sx-E4t" id="35c-O9-FWL"/>
                         <outlet property="colorSimText" destination="fcs-qk-i1M" id="LvH-1g-F4R"/>
                         <outlet property="crossHair00" destination="hGK-ps-3H5" id="4Rc-pg-7JI"/>
                         <outlet property="crossHair01" destination="Q1p-6p-4Xv" id="q0x-vI-BIY"/>
                         <outlet property="crossHair02" destination="jdb-20-iFQ" id="gQV-RJ-3As"/>
                         <outlet property="crossHair03" destination="boy-Wu-NO7" id="NCt-yG-d2y"/>
+                        <outlet property="descriptionLabel" destination="Y6g-It-P6j" id="XsF-Fq-eKU"/>
                         <outlet property="logOutput" destination="uFh-lG-A9b" id="yqZ-Mm-a1e"/>
                         <outlet property="tlButton" destination="9bW-Rd-SXh" id="zvf-8p-pwv"/>
                         <outlet property="tlSwatch" destination="fBa-ON-zgL" id="XYS-mE-IkC"/>
@@ -974,6 +1000,6 @@
     </scenes>
     <resources>
         <image name="cross64" width="64" height="64"/>
-        <image name="testPattern00" width="512" height="512"/>
+        <image name="test2" width="512" height="512"/>
     </resources>
 </document>
