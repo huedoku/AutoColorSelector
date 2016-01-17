@@ -1,0 +1,29 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\fonttbl\f0\fnil\fcharset0 Menlo-Bold;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww25060\viewh10660\viewkind0
+\deftab529
+\pard\tx529\pardeftab529\pardirnatural
+
+\f0\b\fs22 \cf0 \CocoaLigature0 3rd ALGO\
+1>  Get reduced image from 512x512, nearest neighbor, into a 32x32 image.\
+\
+2>  Now from the 32x32 image, put colors into histogram bins using a RGB tolerance BEFORE putting them into the bins\
+\
+3>  With this new set of bins, find most popular color.\
+\
+4>  Perform opposites from this onward\
+\
+\
+\
+\
+4th ALGO:\
+\
+1> Find most popular color in histogram\
+\
+2> Find opposite (farthest RGB distance) from this in histogram\
+\
+3> Go from most popular down, find color whose RGB distance is at least N , where N is a RGB distance threshold (should be large)\
+\
+4> Find opposite of this color.\
+}

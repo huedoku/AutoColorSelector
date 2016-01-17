@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HDKTetra/CColorSuggester.m"
-            timestampString = "472939157.611439"
+            timestampString = "474150660.926798"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "155"
-            endingLineNumber = "155"
+            startingLineNumber = "158"
+            endingLineNumber = "158"
             landmarkName = "-loadReduced:::"
             landmarkType = "5">
          </BreakpointContent>

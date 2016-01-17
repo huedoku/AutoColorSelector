@@ -144,7 +144,9 @@ int pixelSelectX,pixelSelectY;
     csugg.binThresh = binthresh;
     csugg.rgbDiffThresh = colthresh;
 
-    [self preprocessImage];
+    [self getUIFields];
+    processedImage = [csugg preprocessImage : workImage : blockSize : colorDepth];
+    imageView.image = processedImage;
     [self runAlgo];
 
     [self updateUI];
@@ -159,13 +161,13 @@ int pixelSelectX,pixelSelectY;
     switch(whichAlgo)
     {
         case ALGO_HISTOGRAM:
-            [csugg algo_histogram : workImage];
+            [csugg algo_histogram : processedImage];
             break;
         case ALGO_OPPOSITE12:
-            [csugg algo_opposites : workImage];
+            [csugg algo_opposites : processedImage];
             break;
         case ALGO_HUEHISTOGRAM:
-            [csugg algo_huehistogram : workImage];
+            [csugg algo_huehistogram : processedImage];
             break;
             
     }
@@ -233,7 +235,7 @@ int pixelSelectX,pixelSelectY;
 } //end getColorUnderMouse
 
 //===HDKTetra===================================================================
--(void)preprocessImage
+-(void)preprocessImage2
 {
     int verbose = 0;
     int x,y,i;
@@ -398,7 +400,7 @@ int pixelSelectX,pixelSelectY;
 
 
 //===HDKTetra===================================================================
--(void) lilpixel : (unsigned char *) inbuf: (unsigned char *) outbuf : (int) x : (int) y : (int) numchannels : (int) rowsize: (int) optr
+-(void) lilpixel : (unsigned char *) inbuf : (unsigned char *) outbuf : (int) x : (int) y : (int) numchannels : (int) rowsize : (int) optr
 {
     unsigned char r,g,b;
     int iptr,optr3;
@@ -418,7 +420,7 @@ int pixelSelectX,pixelSelectY;
 } //end lilpixel
 
 //===HDKTetra===================================================================
--(void) pixelBlock : (unsigned char *) inbuf: (unsigned char *) outbuf : (int) x : (int) y : (int) numchannels : (int) rowsize : (int) magnification
+-(void) pixelBlock : (unsigned char *) inbuf : (unsigned char *) outbuf : (int) x : (int) y : (int) numchannels : (int) rowsize : (int) magnification
 {
     unsigned char r,g,b;
     int iptr,optr;
@@ -478,7 +480,9 @@ int pixelSelectX,pixelSelectY;
         workImageWidth  = workImage.size.width;
         workImageHeight = workImage.size.height;
         [self updateTopLabelWithImageStats];
-        [self preprocessImage];
+        [self getUIFields];
+        processedImage = [csugg preprocessImage : workImage : blockSize : colorDepth];
+        imageView.image = processedImage;
         [self runAlgo];
 
         [self updateUI];
@@ -507,7 +511,9 @@ int pixelSelectX,pixelSelectY;
     csugg.binThresh = binthresh;
     csugg.rgbDiffThresh = colthresh;
     
-    [self preprocessImage];
+    [self getUIFields];
+    processedImage = [csugg preprocessImage : workImage : blockSize : colorDepth];
+    imageView.image = processedImage;
     [self runAlgo];
 
     
@@ -610,7 +616,11 @@ int pixelSelectX,pixelSelectY;
 //===HDKTetra===================================================================
 - (IBAction)testSelect:(id)sender
 {
-    [self preprocessImage];
+    [self getUIFields];
+    NSLog(@" redraw blocksize %d colordepth %d",blockSize,colorDepth);
+    NSImage *processedImage = [csugg preprocessImage : workImage : blockSize : colorDepth];
+    imageView.image = processedImage;
+    workImage = processedImage;
 }
 
 //===HDKTetra===================================================================

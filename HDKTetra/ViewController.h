@@ -20,7 +20,7 @@
     float colthresh;
     int blockSize;
     int colorDepth;
-
+    NSImage *processedImage;
 }
 - (IBAction)loadSelect:(id)sender;
 - (IBAction)tetraSelect:(id)sender;

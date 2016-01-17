@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -680,14 +680,6 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SvK-c9-BcU">
-                                <rect key="frame" x="530" y="612" width="65" height="17"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="xxx,yyy" id="FwM-n2-Ygs">
-                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="W3H-wR-1ph">
                                 <rect key="frame" x="627" y="612" width="65" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="xxx,yyy" id="beN-Ew-Knq">
@@ -912,6 +904,16 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" tag="101" translatesAutoresizingMaskIntoConstraints="NO" id="Ogu-z9-XzS">
+                                <rect key="frame" x="611" y="287" width="88" height="32"/>
+                                <buttonCell key="cell" type="push" title="Redraw" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cej-ud-A6B">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="testSelect:" target="XfG-lQ-9wD" id="0Pv-Wq-02V"/>
+                                </connections>
+                            </button>
                             <button verticalHuggingPriority="750" fixedFrame="YES" tag="102" translatesAutoresizingMaskIntoConstraints="NO" id="d7t-AM-UpO">
                                 <rect key="frame" x="612" y="-2" width="88" height="32"/>
                                 <buttonCell key="cell" type="push" title="Analyze" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6E9-By-r84">
@@ -956,16 +958,14 @@
                                     <action selector="loadSelect:" target="XfG-lQ-9wD" id="udg-JF-kez"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" tag="101" translatesAutoresizingMaskIntoConstraints="NO" id="Ogu-z9-XzS">
-                                <rect key="frame" x="611" y="287" width="88" height="32"/>
-                                <buttonCell key="cell" type="push" title="Redraw" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cej-ud-A6B">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="testSelect:" target="XfG-lQ-9wD" id="0Pv-Wq-02V"/>
-                                </connections>
-                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SvK-c9-BcU">
+                                <rect key="frame" x="530" y="612" width="65" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="xxx,yyy" id="FwM-n2-Ygs">
+                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                         </subviews>
                     </view>
                     <connections>
@@ -990,6 +990,7 @@
                         <outlet property="trSwatch" destination="WEy-td-wMc" id="ehr-QS-22j"/>
                         <outlet property="xylabel00" destination="SvK-c9-BcU" id="J5g-tz-P3b"/>
                         <outlet property="xylabel01" destination="W3H-wR-1ph" id="EUb-3Y-6Wv"/>
+                        <outlet property="xylabel02" destination="b5A-lC-k07" id="vi9-fx-U38"/>
                         <outlet property="xylabel03" destination="Gpe-vk-hIR" id="aiU-fZ-Use"/>
                     </connections>
                 </viewController>

@@ -36,6 +36,9 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
 NSString *histDesc = @"Histogram: finds most popular colors.\n Uses bin threshold to eliminate less\n popular colors.  Sorts thresholded\n colors into a top-ten array. Finally,\n compares top-ten colors for similarity\n and eliminates near-identical colors.";
 NSString *opposite12Desc = @"Opposite 1/2: Finds most popular\n color. Uses histogram to get a list\n of top-ten most popular colors.\n Finds most opposite color in top-ten\n list. Finds median color between\n opposites in top-ten list. Lastly\n finds opposite of median color.";
 
+
+#define tiffHeaderSize 8
+
 //=====[ColorSuggester]======================================================================
 // Just clears our our object...
 -(instancetype) init
@@ -835,8 +838,8 @@ NSString *opposite12Desc = @"Opposite 1/2: Finds most popular\n color. Uses hist
         //pull rgb components out
         if (hverbose && pop > 0)
         {
-            NSLog(@" [%2.2d] :  pop:%5.5d colorIndex %d RGB(%3.3d,%3.3d,%3.3d) XY (%d,%d)",
-                  i,pop,index,red,green,blue,row,col);
+            NSLog(@" [%2.2d] :  pop:%5.5d colorIndex %lu RGB(%3.3d,%3.3d,%3.3d) XY (%d,%d)",
+                  i,pop,(unsigned long)index,red,green,blue,row,col);
         }
     } //end for i
     
@@ -1079,7 +1082,7 @@ NSString *opposite12Desc = @"Opposite 1/2: Finds most popular\n color. Uses hist
     rcount = 0;
     [reducedColors removeAllObjects];
 
-    count = topTenColors.count;
+    count = (int)topTenColors.count;
     tmpc1 = [topTenColors objectAtIndex:0]; //Most popular color
     [reducedColors addObject:tmpc1]; //Add our color...
     reducedPopulations[rcount] = topTenPopulations[0];
@@ -1352,6 +1355,172 @@ NSString *opposite12Desc = @"Opposite 1/2: Finds most popular\n color. Uses hist
     }
     return nada;
 } //end getAlgoDesc
+
+
+
+//===HDKTetra===================================================================
+-(NSImage *)preprocessImage : (NSImage *)inputImage : (int) blockSize : (int) colorDepth
+{
+    int verbose = 0;
+    int x,y,i;
+    NSData *data = [inputImage TIFFRepresentation];
+    int workImageWidth  = inputImage.size.width;
+    int workImageHeight = inputImage.size.height;
+
+    //  NSColorSpace *cspace;
+    
+    //  cspace = [originalImage.
+    
+    int iwid = inputImage.size.width;
+    //OK at this point mb actually has the TIFF raw data.
+    //  NOTE first 8 bytes are reserved for TIFF header!
+    unsigned char * mb = [data bytes];
+    int blen = (int)[data length];
+    int rowsize = 3*iwid;
+    int numpixels = inputImage.size.width * inputImage.size.height;
+    
+    int numchannels = blen / numpixels;
+    
+    rowsize = numchannels * iwid;
+    
+    
+    NSLog(@" blen %d iwid %d np %d 3np %d 4np %d numchannels: %d",blen,iwid,numpixels,3*numpixels,4*numpixels,numchannels);
+    
+    //Copy to 2nd buffer...
+    unsigned char *mb2 = (unsigned char *) malloc(blen);
+    for (i=0;i<blen;i++) mb2[i] = mb[i];
+    
+    
+    // NSBitmapImageRep* imageRep = [[NSBitmapImageRep alloc] initWithData:[workImage TIFFRepresentation]];
+    //    NSColor* color = [imageRep colorAtX:pixelSelectX y:imageHeight - pixelSelectY];  asdf
+    if (verbose)
+    {
+        x = 10;y = 10;
+        for (i=0;i<512;i++)
+        {
+            int i3 = tiffHeaderSize + numchannels*i;
+           // NSLog(@" data[%d] rgb %x,%x,%x",i,mb[i3],mb[i3+1],mb[i3+2]);
+        }
+        
+    }
+    
+    int loopx,loopy;
+    int iptr;
+    
+    //int lilwid,lilhit;
+    
+    int reducedW = workImageWidth/blockSize;
+    int reducedH = workImageHeight/blockSize;
+    
+    //Blocksize....
+    //int blen3 = 3 * reducedW * reducedH;
+    int lpptr = 0;
+    if (blockSize > 1) for(loopy=0;loopy<workImageHeight;loopy+=blockSize)
+    {
+        for(loopx=0;loopx<workImageWidth;loopx+=blockSize)
+        {
+            //   -(void) pixelBlock : (unsigned char *) inbuf: (unsigned char *) outbuf : (int) x : (int) y : (int) rowsize : (int) magnification
+            [self pixelBlock: mb :mb2 :loopx :loopy : numchannels : rowsize : blockSize];
+            //[self lilpixel : mb :reducedImage :loopx :loopy : numchannels : rowsize : lpptr];
+            lpptr++;
+            
+        } //end loopx
+    } //end loopy
+    
+    //Color Depth...
+    lpptr = 0;
+    unsigned char r,g,b;
+    unsigned char bmask;
+    
+    //  a = 1010
+    //  b = 1011
+    //  c = 1100
+    //  d = 1101
+    //  e = 1110
+    //Masking...    1  1  1  1  1  1  1  1
+    // depth        X  X  3  4  5  6  7  8
+    bmask = 0xff;
+    switch(colorDepth)
+    {
+        case 2: bmask = 0xc0;
+            break;
+        case 3: bmask = 0xe0;
+            break;
+        case 4: bmask = 0xf0;
+            break;
+        case 5: bmask = 0xf8;
+            break;
+        case 6: bmask = 0xfc;
+            break;
+        case 7: bmask = 0xfe;
+            break;
+        case 8: bmask = 0xff;
+            break;
+            
+    }
+    lpptr = 0;
+    for(loopy=0;loopy<workImageHeight;loopy+=blockSize)
+    {
+        for(loopx=0;loopx<workImageWidth;loopx+=blockSize)
+        {
+            iptr = tiffHeaderSize + lpptr;
+            if (blockSize == 1) //no blocking, get primary image
+            {
+                r = mb[iptr];
+                g = mb[iptr+1];
+                b = mb[iptr+2];
+            }
+            else   //Blocked image? Get mb2, blocked 2nd image
+            {
+                r = mb2[iptr];
+                g = mb2[iptr+1];
+                b = mb2[iptr+2];
+            }
+            r = r & bmask;
+            g = g & bmask;
+            b = b & bmask;
+            mb2[iptr]   = r;
+            mb2[iptr+1] = g;
+            mb2[iptr+2] = b;
+            lpptr+=numchannels;
+        } //end loopx
+    } //end loopy
+    
+    
+    //Take our byte array mb, encapsulate it into an NSData object...
+    NSData *outData = [[NSData alloc] initWithBytes:mb2 length:blen];
+    //Now the NSData object gets turned into an NSImage
+    NSImage *outputImage = [[NSImage alloc] initWithData:outData];
+    free(mb2);
+    return outputImage;
+} //end preprocessImage
+
+//===HDKTetra===================================================================
+-(void) pixelBlock : (unsigned char *) inbuf : (unsigned char *) outbuf : (int) x : (int) y : (int) numchannels : (int) rowsize : (int) magnification
+{
+    unsigned char r,g,b;
+    int iptr,optr;
+    int loopx,loopy;
+    
+    iptr = tiffHeaderSize + (numchannels*x) + (rowsize*y);
+    r = inbuf[iptr];
+    g = inbuf[iptr+1];
+    b = inbuf[iptr+2];
+    
+    for (loopy = 0;loopy < magnification;loopy++)
+    {
+        optr =  tiffHeaderSize + (numchannels * x) + (rowsize * (y + loopy)); //Starting pointer for our block
+        for (loopx = 0;loopx < magnification;loopx++)
+        {
+            outbuf[optr]   = r;
+            outbuf[optr+1] = g;
+            outbuf[optr+2] = b;
+            optr+=numchannels;
+        }
+    }
+    
+    
+} //end pixelBlock
 
 
 /*-----------------------------------------------------------*/

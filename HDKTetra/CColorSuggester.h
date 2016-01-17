@@ -102,6 +102,7 @@
 -(void) algo_histogram :(NSImage *)input;
 -(void) algo_opposites :(NSImage *)input;
 -(void) algo_huehistogram :(NSImage *)input;
+-(NSImage *)preprocessImage : (NSImage *)inputImage : (int) blockSize : (int) colorDepth;
 
 
 
