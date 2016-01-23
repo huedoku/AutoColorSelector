@@ -64,7 +64,7 @@ int pixelSelectX,pixelSelectY;
 //===HDKTetra===================================================================
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSLog(@" viewDidLoad...");
+    //NSLog(@" viewDidLoad...");
     whichWell = 0;
     pictureTaker = [IKPictureTaker pictureTaker];
     csugg = [[CColorSuggester alloc] init];
@@ -86,7 +86,7 @@ int pixelSelectX,pixelSelectY;
 
 //===HDKTetra===================================================================
 - (void)viewDidAppear {
-    NSLog(@" viewdidappear...");
+    //NSLog(@" viewdidappear...");
     [super viewDidAppear];
     [self.view.window setAcceptsMouseMovedEvents:YES];
     
@@ -387,7 +387,7 @@ int pixelSelectX,pixelSelectY;
     }
     if (blockSize > 32) blockSize = 32;
     _blockSizeText.stringValue = [NSString stringWithFormat: @"%d",blockSize];
-    NSLog(@" blockSize is %d",blockSize);
+    //NSLog(@" blockSize is %d",blockSize);
 
     
     colorDepth = _colorDepthText.intValue;
@@ -618,7 +618,7 @@ int pixelSelectX,pixelSelectY;
 {
     [self getUIFields];
     NSLog(@" redraw blocksize %d colordepth %d",blockSize,colorDepth);
-    NSImage *processedImage = [csugg preprocessImage : workImage : blockSize : colorDepth];
+    processedImage = [csugg preprocessImage : workImage : blockSize : colorDepth];
     imageView.image = processedImage;
     workImage = processedImage;
 }

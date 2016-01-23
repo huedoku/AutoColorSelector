@@ -26,7 +26,7 @@
 #define MAX_CLUMPS 256
 #define MAX_CLUMP_DATA 256
 
-#define TOPTENCOUNT 8192
+#define TOPTENCOUNT 512
 @interface CColorSuggester : NSObject
 {
     NSImage *workImage1;
