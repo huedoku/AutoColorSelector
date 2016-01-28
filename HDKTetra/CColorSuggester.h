@@ -104,6 +104,10 @@
 -(void) algo_huehistogram :(NSImage *)input;
 -(NSImage *)preprocessImage : (NSImage *)inputImage : (int) blockSize : (int) colorDepth;
 
+- (void) RGBtoHLS : (int) RR : (int) GG : (int) BB;
+-(int) getHHH;
+-(int) getLLL;
+-(int) getSSS;
 
 
 

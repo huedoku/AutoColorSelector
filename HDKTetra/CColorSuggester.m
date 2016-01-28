@@ -1555,4 +1555,21 @@ int partition(  int l, int r) {
 } //end partition
 
 
+
+//-----------------------------------------------------------
+// Crude rude and obnoxious: gets hls raw stuff...
+-(int) getHHH
+{
+    return HHH;
+}
+-(int) getLLL
+{
+    return LLL;
+}
+-(int) getSSS
+{
+    return SSS;
+}
+
+
 @end

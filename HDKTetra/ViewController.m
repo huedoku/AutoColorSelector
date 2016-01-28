@@ -736,8 +736,10 @@ int pixelSelectX,pixelSelectY;
 -(void) smartColors
 {
     int i;
+    int r,g,b,hhh,lll,sss;
     float rf,gf,bf;
     float rfo,gfo,bfo;
+    int hhho;
     float tooCloseToler = 0.05f;
     BOOL tossit;
     const CGFloat* components;
@@ -748,6 +750,7 @@ int pixelSelectX,pixelSelectY;
     int index = 0;
     int rcount = [csugg getReducedCount];
     rfo = gfo = bfo = 0.0;
+    hhho = 0;
     for(i=0;i<rcount;i++)
     {
         tossit = FALSE;
@@ -758,21 +761,32 @@ int pixelSelectX,pixelSelectY;
         rf = components[0];
         gf = components[1];
         bf = components[2];
-        //NSLog(@" smartcheck[%d] %f %f %f",i,rf,gf,bf);
+        r  = (int)(255.0 * rf);
+        g  = (int)(255.0 * gf);
+        b  = (int)(255.0 * bf);
         if (rf + gf + bf < 0.03) tossit = TRUE; //Toss black
         if ((fabs(rf - rfo) < tooCloseToler) && (fabs(gf - gfo) < tooCloseToler)) tossit = TRUE; //Toss Too Similar Red/Green
         if ((fabs(rf - rfo) < tooCloseToler) && (fabs(bf - bfo) < tooCloseToler)) tossit = TRUE; //Toss Too Similar Red/Blue
         if ((fabs(gf - gfo) < tooCloseToler) && (fabs(bf - bfo) < tooCloseToler)) tossit = TRUE; //Toss Too Similar Green/Blue
+
+        [csugg RGBtoHLS : r : g : b ];
+        hhh = [csugg getHHH];
+        lll = [csugg getLLL];
+        sss = [csugg getSSS];
+        if (abs(hhh - hhho) < 3) tossit = TRUE; //Too similar hue
+        NSLog(@" smartcheck[%d] %f %f %f hls %d %d %d",i,rf,gf,bf,hhh,lll,sss);
+        
         if (!tossit)
         {
             reducedIndices[index] = i;
-            //NSLog(@" ...found smart index[%d] = %d",index,i);
+            NSLog(@" ...found smart index[%d] = %d",index,i);
             index++;
         }
         //asdf
         rfo = rf;
         gfo = gf;
         bfo = bf;
+        hhho = hhh;
         
     }
     
