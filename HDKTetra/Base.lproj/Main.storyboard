@@ -698,7 +698,7 @@
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uau-tV-e94">
                                 <rect key="frame" x="533" y="440" width="99" height="17"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Bin Population" id="GxR-ZX-2qQ">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Bin Pop (%)" id="GxR-ZX-2qQ">
                                     <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -706,7 +706,7 @@
                             </textField>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" tag="103" translatesAutoresizingMaskIntoConstraints="NO" id="QLV-5Q-MBa">
                                 <rect key="frame" x="4" y="163" width="512" height="512"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="test2" id="jC2-b1-Coq"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="greensun" id="jC2-b1-Coq"/>
                             </imageView>
                             <colorWell fixedFrame="YES" tag="106" translatesAutoresizingMaskIntoConstraints="NO" id="htJ-Js-IN5">
                                 <rect key="frame" x="543" y="548" width="40" height="40"/>
@@ -834,7 +834,7 @@
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8eQ-hu-Epc">
                                 <rect key="frame" x="532" y="410" width="102" height="17"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Color Similarity" id="kCP-Ki-WBQ">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="RGB Diff" id="kCP-Ki-WBQ">
                                     <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1001,6 +1001,6 @@
     </scenes>
     <resources>
         <image name="cross64" width="64" height="64"/>
-        <image name="test2" width="512" height="512"/>
+        <image name="greensun" width="512" height="384"/>
     </resources>
 </document>

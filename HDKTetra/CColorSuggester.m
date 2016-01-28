@@ -33,7 +33,7 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
 //  to get our colors back from the bin's colorspace
 #define INV255FUDGE 0.00392160
 
-NSString *histDesc = @"Histogram: finds most popular colors.\n Uses bin threshold to eliminate less\n popular colors.  Sorts thresholded\n colors into a top-ten array. Finally,\n compares top-ten colors for similarity\n and eliminates near-identical colors.";
+NSString *histDesc = @"Histogram: Thresholds under a \npercent scheme now. Defaults \nto 2-bit posterize. Applies \nsmart color check afterwards.\nIf you get bad results try\nreducing percentage.";
 NSString *opposite12Desc = @"Opposite 1/2: Finds most popular\n color. Uses histogram to get a list\n of top-ten most popular colors.\n Finds most opposite color in top-ten\n list. Finds median color between\n opposites in top-ten list. Lastly\n finds opposite of median color.";
 
 void quickSort( int l, int r);
@@ -751,8 +751,10 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     ssize = 0;
     hthresh = _binThresh; // use externally set threshold property...
     if (hthresh < 1) hthresh = 1;
+    //DHS Jan 28: set thresh as percentage of pixel count...
+    hthresh = hthresh * width1 * height1 / 100;
     int bin2ptr = 0;
-    if (hverbose) NSLog(@" Culling bins below threshold %d",hthresh);
+    if (1 || hverbose) NSLog(@" Culling bins below threshold %d",hthresh);
     // Loop over ALL our bins we found, add results to output arrays...
     //Produce sparse list of bins w/ populations over threshold
     for (i=0;i<MAX_HIST_BINS;i++)
@@ -966,17 +968,17 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
         //Loop over the entire thang or until we find a match
         for (j = 0 ; j < numPixels1 && !gotMatch ; j++)
         {
+            //  (remember we started somewhere in middle of image)
+            if (cArrayPtr >= bitmapsize-3)
+            {
+                cArrayPtr = 0;
+                wraparound = TRUE;
+            }
             //Get next color
             tred   = cArray1[cArrayPtr++];
             tgreen = cArray1[cArrayPtr++];
             tblue  = cArray1[cArrayPtr++];
             //Handle wraparound
-            //  (remember we started somewhere in middle of image)
-            if (cArrayPtr >= bitmapsize)
-            {
-                cArrayPtr = 0;
-                wraparound = TRUE;
-            }
             //Get RGB sum of current examined pixel and match color...
             int cdiff = [self colorDifferenceRGB: red : green : blue : tred : tgreen : tblue];
             //Found a color in image that's close enough to our "reduced" color??

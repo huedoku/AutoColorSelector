@@ -38,6 +38,8 @@ NSImage *squareCrosshair;
 NSImage *circCrosshair;
 int numReducedColors;
 
+int reducedIndices[4];
+
 IKPictureTaker *pictureTaker;
 
 HDKCGenerate *hdkgen;
@@ -78,7 +80,7 @@ int pixelSelectX,pixelSelectY;
     _binPopText.stringValue = @"10";
     _colorSimText.stringValue = @"0.05";
     _blockSizeText.stringValue = @"1";
-    _colorDepthText.stringValue = @"8";
+    _colorDepthText.stringValue = @"2";
     whichAlgo = ALGO_HISTOGRAM;
 
 } //end viewDidLoad
@@ -131,7 +133,8 @@ int pixelSelectX,pixelSelectY;
     
     //    NSLog(@" ivxy %f %f wy %f %f",fr.origin.x,fr.origin.y,fr.size.width,fr.size.height);
 //    workImage = [NSImage imageNamed:@"testPattern00"];
-    workImage = [NSImage imageNamed:@"test2"];
+//    workImage = [NSImage imageNamed:@"test2"];
+    workImage = [NSImage imageNamed:@"greensun"];
     originalImage = workImage;
     workImageWidth  = workImage.size.width;
     workImageHeight = workImage.size.height;
@@ -162,6 +165,7 @@ int pixelSelectX,pixelSelectY;
     {
         case ALGO_HISTOGRAM:
             [csugg algo_histogram : processedImage];
+            [self smartColors];
             break;
         case ALGO_OPPOSITE12:
             [csugg algo_opposites : processedImage];
@@ -211,7 +215,7 @@ int pixelSelectX,pixelSelectY;
         
         pixelSelectX = xpos;
         pixelSelectY = ypos;
-        //NSLog(@" pixelselect %d,%d",pixelSelectX,pixelSelectY);
+        NSLog(@" pixelselect %d,%d",pixelSelectX,pixelSelectY);
         [self getColorUnderMouse];
         int invy = workImageHeight-ypos;
         [self updateCrossHair: whichWell : xpos : invy];
@@ -227,9 +231,14 @@ int pixelSelectX,pixelSelectY;
 {
     NSBitmapImageRep* imageRep = [[NSBitmapImageRep alloc] initWithData:[workImage TIFFRepresentation]];
    // NSSize imageSize = [workImage size];
-   // NSLog(@" size %f,%f",imageSize.width,imageSize.height);
+   NSLog(@" size %d,%d xy %d %d",workImageWidth,workImageHeight,pixelSelectX,pixelSelectY);
     NSColor* color = [imageRep colorAtX:pixelSelectX y:imageHeight - pixelSelectY];
-//    NSLog(@" coloriz %@ %f,%f,%f",color,r,g,b);
+    const CGFloat* components = CGColorGetComponents(color.CGColor);
+//asdf
+    int r = (int)(components[0] * 255.0);
+    int g = (int)(components[1] * 255.0);
+    int b = (int)(components[2] * 255.0);
+    NSLog(@" coloriz %d,%d,%d",r,g,b);
     [self updateWell: whichWell :color];
 
 } //end getColorUnderMouse
@@ -696,6 +705,7 @@ int pixelSelectX,pixelSelectY;
     int xpos,ypos;
     
     //NSLog(@" update crosshair %d xy %d %d",which,newx,newy);
+    //NSLog(@"wh w/h %d %d",workImageWidth,workImageHeight);
     int invy = workImageHeight - newy;
     xpos = imageLeft  + newx - crosswh*0.5 ;
     ypos = imageTop   + invy - crosswh*0.5 ;
@@ -718,6 +728,56 @@ int pixelSelectX,pixelSelectY;
     
 } //end updateCrossHair
 
+
+
+//===HDKTetra===================================================================
+// Let's look at the colors:
+//   toss black and white for now...
+-(void) smartColors
+{
+    int i;
+    float rf,gf,bf;
+    float rfo,gfo,bfo;
+    float tooCloseToler = 0.05f;
+    BOOL tossit;
+    const CGFloat* components;
+    
+    NSColor *testColor;
+    for(i=0;i<4;i++) reducedIndices[i] = i;
+
+    int index = 0;
+    int rcount = [csugg getReducedCount];
+    rfo = gfo = bfo = 0.0;
+    for(i=0;i<rcount;i++)
+    {
+        tossit = FALSE;
+        testColor = [csugg getNthReducedColor:i];
+        //NSLog(@" tc[%d] %@",i,testColor);
+        components= CGColorGetComponents(testColor.CGColor);
+
+        rf = components[0];
+        gf = components[1];
+        bf = components[2];
+        //NSLog(@" smartcheck[%d] %f %f %f",i,rf,gf,bf);
+        if (rf + gf + bf < 0.03) tossit = TRUE; //Toss black
+        if ((fabs(rf - rfo) < tooCloseToler) && (fabs(gf - gfo) < tooCloseToler)) tossit = TRUE; //Toss Too Similar Red/Green
+        if ((fabs(rf - rfo) < tooCloseToler) && (fabs(bf - bfo) < tooCloseToler)) tossit = TRUE; //Toss Too Similar Red/Blue
+        if ((fabs(gf - gfo) < tooCloseToler) && (fabs(bf - bfo) < tooCloseToler)) tossit = TRUE; //Toss Too Similar Green/Blue
+        if (!tossit)
+        {
+            reducedIndices[index] = i;
+            //NSLog(@" ...found smart index[%d] = %d",index,i);
+            index++;
+        }
+        //asdf
+        rfo = rf;
+        gfo = gf;
+        bfo = bf;
+        
+    }
+    
+} //end smartColors
+
 //===HDKTetra===================================================================
 // Get histogram data and updates swatches...   asdf
 -(void) updateSwatchesAndCrosshairs
@@ -731,15 +791,15 @@ int pixelSelectX,pixelSelectY;
     CGPoint rpt3;
     CGPoint rpt4;
     
-    reducedColor1 = [csugg getNthReducedColor:0];
-    reducedColor2 = [csugg getNthReducedColor:1];
-    reducedColor3 = [csugg getNthReducedColor:2];
-    reducedColor4 = [csugg getNthReducedColor:3];
+    reducedColor1 = [csugg getNthReducedColor:reducedIndices[0]];
+    reducedColor2 = [csugg getNthReducedColor:reducedIndices[1]];
+    reducedColor3 = [csugg getNthReducedColor:reducedIndices[2]];
+    reducedColor4 = [csugg getNthReducedColor:reducedIndices[3]];
     
-    rpt1 = [csugg getNthReducedXY:0];
-    rpt2 = [csugg getNthReducedXY:1];
-    rpt3 = [csugg getNthReducedXY:2];
-    rpt4 = [csugg getNthReducedXY:3];
+    rpt1 = [csugg getNthReducedXY:reducedIndices[0]];
+    rpt2 = [csugg getNthReducedXY:reducedIndices[1]];
+    rpt3 = [csugg getNthReducedXY:reducedIndices[2]];
+    rpt4 = [csugg getNthReducedXY:reducedIndices[3]];
     
     //NSLog(@" updateswatches %@ %@ %@ %@",reducedColor1,reducedColor2,reducedColor3,reducedColor4);
     [self updateWell : 1 : reducedColor1];

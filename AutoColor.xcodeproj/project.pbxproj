@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		723729291C5A651600F26B0D /* greensun.png in Resources */ = {isa = PBXBuildFile; fileRef = 723729281C5A651600F26B0D /* greensun.png */; };
 		72463B391C0632C4003B43BF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 72463B381C0632C4003B43BF /* AppDelegate.m */; };
 		72463B3C1C0632C4003B43BF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 72463B3B1C0632C4003B43BF /* main.m */; };
 		72463B3F1C0632C4003B43BF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 72463B3E1C0632C4003B43BF /* ViewController.m */; };
@@ -27,6 +28,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		723729281C5A651600F26B0D /* greensun.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = greensun.png; path = Resources/greensun.png; sourceTree = "<group>"; };
 		72463B341C0632C4003B43BF /* AutoColor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoColor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		72463B371C0632C4003B43BF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		72463B381C0632C4003B43BF /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 		72463B4B1C063680003B43BF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				723729281C5A651600F26B0D /* greensun.png */,
 				72CAAEF11C3023F1003012D4 /* test2.png */,
 				72C8CC231C14DBD300A09A67 /* crosscirc128.png */,
 				72BC4D5E1C066A4C001C7806 /* cross64.png */,
@@ -201,6 +204,7 @@
 				72463B4D1C06368F003B43BF /* testPattern00.png in Resources */,
 				72463B411C0632C4003B43BF /* Assets.xcassets in Resources */,
 				72463B441C0632C4003B43BF /* Main.storyboard in Resources */,
+				723729291C5A651600F26B0D /* greensun.png in Resources */,
 				72C8CC241C14DBD300A09A67 /* crosscirc128.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
