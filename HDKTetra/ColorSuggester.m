@@ -16,10 +16,9 @@
 //  Copyright © 2015 huedoku, inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import "CColorSuggester.h"
+#import "ColorSuggester.h"
 
-@implementation CColorSuggester
+@implementation ColorSuggester
 
 int HHH,LLL,SSS;
 #define  HLSMAX   255   // H,L, and S vary over 0-HLSMAX
@@ -33,13 +32,16 @@ int hverbose = 0;   //1 = minimal, 2 = medium 3 = outrageous
 //  to get our colors back from the bin's colorspace
 #define INV255FUDGE 0.00392160
 
-NSString *histDesc = @"Histogram: Thresholds under a \npercent scheme now. Defaults \nto 2-bit posterize. Applies \nsmart color check afterwards.\nIf you get bad results try\nreducing percentage.";
+NSString *histDesc = @"Histogram: finds most popular colors.\n Uses bin threshold to eliminate less\n popular colors.  Sorts thresholded\n colors into a top-ten array. Finally,\n compares top-ten colors for similarity\n and eliminates near-identical colors.";
 NSString *opposite12Desc = @"Opposite 1/2: Finds most popular\n color. Uses histogram to get a list\n of top-ten most popular colors.\n Finds most opposite color in top-ten\n list. Finds median color between\n opposites in top-ten list. Lastly\n finds opposite of median color.";
 
 void quickSort( int l, int r);
 int iarray[TOPTENCOUNT];  //QuickSort population array...
 int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
+double drand(double lo_range,double hi_range );
 #define tiffHeaderSize 8
+
+
 
 //=====[ColorSuggester]======================================================================
 // Just clears our our object...
@@ -57,6 +59,18 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
         numPixels2  = 0;
         width1 = height1 = width2 = height2 = 0;
         
+#ifdef IOS_BUILD
+        brightestPixel      = [UIColor blackColor];
+        darkestPixel        = [UIColor blackColor];
+        mostSaturatedPixel  = [UIColor blackColor];
+        leastSaturatedPixel = [UIColor blackColor];
+        mostRedPixel        = [UIColor blackColor];
+        mostGreenPixel      = [UIColor blackColor];
+        mostBluePixel       = [UIColor blackColor];
+        mostCyanPixel       = [UIColor blackColor];
+        mostMagentaPixel    = [UIColor blackColor];
+        mostYellowPixel     = [UIColor blackColor];
+#else
         brightestPixel      = [NSColor blackColor];
         darkestPixel        = [NSColor blackColor];
         mostSaturatedPixel  = [NSColor blackColor];
@@ -67,6 +81,7 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
         mostCyanPixel       = [NSColor blackColor];
         mostMagentaPixel    = [NSColor blackColor];
         mostYellowPixel     = [NSColor blackColor];
+#endif
         brightestIndex      = 0;
         darkestIndex        = 0;
         mostSaturatedIndex  = 0;
@@ -89,13 +104,140 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 } //end init
 
 
+//===HDKTetra===================================================================
+-(void) smartColors
+{
+    float tooCloseToler = 0.05f;
+    int hueToler = 16;
+    int smartie = 0;
+    int pass = 0;
+    
+    while (pass < 4 && smartCount < 4 )
+    {
+        smartCount = [self smartColorIter:hueToler :tooCloseToler];
+        if (hverbose == 2) NSLog(@" smart pass %d found %d colors",pass,smartCount);
+        if (smartCount < 4)
+        {
+            pass++;
+            hueToler/=2;
+            tooCloseToler/=2.0;
+        }
+    } //end while pass...
+    for (int i=0;i<smartCount;i++)
+    {
+        const CGFloat* components;
+#ifdef IOS_BUILD
+        UIColor *testColor;
+#else
+        NSColor *testColor;
+#endif
+        int r,g,b,index = smartIndices[i];
+        testColor = [self getNthReducedColor:i];
+        //NSLog(@" tc[%d] %@",i,testColor);
+        components= CGColorGetComponents(testColor.CGColor);
+        
+        r  = (int)(255.0 * components[0]);
+        g  = (int)(255.0 * components[1]);
+        b  = (int)(255.0 * components[2]);
+
+        if (hverbose == 2) NSLog(@" smart[%d] %d RGB %d %d %d",i,index,r,g,b);
+    }
+    if (hverbose) NSLog(@" smart count %d",smartCount);
+    
+} //end smartColors
+
+//===HDKTetra===================================================================
+-(int) getNthSmartIndex : (int) n
+{
+    if (n < 0) return 0;
+    if (n >= smartCount) return 0;
+    return smartIndices[n];
+ }
+
+//===HDKTetra===================================================================
+// Let's look at the colors:
+//   toss black and white for now...
+-(int) smartColorIter : (int) hueToler : (float) tooCloseToler
+{
+    int i;
+    int r,g,b;
+    float rf,gf,bf;
+    float rfo,gfo,bfo;
+    int hhho;
+    BOOL tossit;
+    const CGFloat* components;
+    int hues[256];
+    int hueptr = 0;
+    int smartIterCount = 0;
+    
+#ifdef IOS_BUILD
+    UIColor *testColor;
+#else
+    NSColor *testColor;
+#endif
+    for(i=0;i<4;i++) smartIndices[i] = i;
+    smartCount = 0;
+    int index = 0;
+    int rcount = [self getReducedCount];
+    rfo = gfo = bfo = 0.0;
+    hhho = 0;
+    for(i=0;i<rcount;i++)
+    {
+        tossit = FALSE;
+        testColor = [self getNthReducedColor:i];
+        //NSLog(@" tc[%d] %@",i,testColor);
+        components= CGColorGetComponents(testColor.CGColor);
+        
+        rf = components[0];
+        gf = components[1];
+        bf = components[2];
+        r  = (int)(255.0 * rf);
+        g  = (int)(255.0 * gf);
+        b  = (int)(255.0 * bf);
+        if (rf + gf + bf < 0.03) tossit = TRUE; //Toss black
+        if ((fabs(rf - rfo) < tooCloseToler) && (fabs(gf - gfo) < tooCloseToler)) tossit = TRUE; //Toss Too Similar Red/Green
+        if ((fabs(rf - rfo) < tooCloseToler) && (fabs(bf - bfo) < tooCloseToler)) tossit = TRUE; //Toss Too Similar Red/Blue
+        if ((fabs(gf - gfo) < tooCloseToler) && (fabs(bf - bfo) < tooCloseToler)) tossit = TRUE; //Toss Too Similar Green/Blue
+        
+        [self RGBtoHLS : r : g : b ];
+//        if (abs(HHH - hhho) < 13) tossit = TRUE; //Too similar hue
+        if (!tossit) for (int j=0;j<hueptr && !tossit;j++)
+        {
+            if (abs(HHH - hues[j]) < hueToler) tossit = TRUE;  //Get rid of identical hues...
+            //NSLog(@" match [%d] %d vs %d toler %d bing %d",j,HHH,hues[j],hueToler,tossit);
+        }
+        
+        if (!tossit)
+        {
+            smartIndices[index] = i;
+            //NSLog(@" ...found smart index[%d] = %d",index,i);
+            //NSLog(@"                     RGB    %d %d %d   HLS %d %d %d",r,g,b,HHH,LLL,SSS);
+            index++;
+            hues[hueptr] = HHH;
+            hueptr++;
+            smartIterCount++;
+        }
+        //asdf
+        rfo = rf;
+        gfo = gf;
+        bfo = bf;
+        hhho = HHH;
+        
+    } //end i loop
+    return smartIterCount;
+} //end smartColors
+
 
 
 
 //=====[ColorSuggester]======================================================================
 // Copies input image locally, gets width/height, and then loads up the pixel data
 //  into the cArray1 RGB array.  Should be followed by cleanup after algo is done!
+#ifdef IOS_BUILD
+-(void) loadInput :(UIImage *)input
+#else
 -(void) loadInput :(NSImage *)input
+#endif
 {
     workImage1 = input; //Does this copy it in???
     width1     = workImage1.size.width;
@@ -103,7 +245,7 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     if (hverbose) NSLog(@" AutoColor Loading for algo %d wh %d %d",_whichAlgo,width1,height1);
     cArray1 = (int *)malloc(3*width1*height1*sizeof(int)); //Allocate our local RGB arrayu
     [self getRGBAsFromImage:workImage1];
-    [self analyze];
+    //DHS THIS IS TOO SLOW! [self analyze];
 } //end loadInput
 
 //=====[ColorSuggester]======================================================================
@@ -113,46 +255,6 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     free(cArray1);
 } //end cleanup
 
-
-
-//=====[ColorSuggester]======================================================================
-// Top-level algos: basic histogram...
--(void) algo_histogram :(NSImage *)input
-{
-    [self loadInput:input];
-    [self createHistogram];
-    [self createClumps];
-    [self reduceColors];
-    [self refindColors];
-    if (hverbose) [self dump];
-    [self cleanup];
-} //end algo_histogram
-
-//=====[ColorSuggester]======================================================================
-// Top-level algos: "find opposites" algo..
--(void) algo_opposites:(NSImage *)input
-{
-    [self loadInput:input];
-    [self createHistogram];
-    [self createClumps];
-    [self findOpposites];
-    [self refindColors];
-    if (hverbose) [self dump];
-    [self cleanup];
-} //end algo_opposites
-
-//=====[ColorSuggester]======================================================================
-// Top-level algos: hue-based histogram...
--(void) algo_huehistogram :(NSImage *)input
-{
-    [self loadInput:input];
-    [self createHueHistogram];
-    [self createHueClumps];
-    [self reduceColors];
-    [self refindColors];
-    if (hverbose) [self dump];
-    [self cleanup];
-} //end algo_huehistogram
 
 
 //=====[ColorSuggester]======================================================================
@@ -193,6 +295,57 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 
 //=====[ColorSuggester]======================================================================
 // This loads up the cArray1 RGB array from the input image
+#ifdef IOS_BUILD
+-(void) getRGBAsFromImage:(UIImage*)image
+{
+    
+    // First get the image into your data buffer
+    CGImageRef imageRef = [image CGImage];
+    NSUInteger width    = CGImageGetWidth(imageRef);
+    NSUInteger height   = CGImageGetHeight(imageRef);
+    if (hverbose) NSLog(@" ...get rgbs from image wh %d %d",(int)width,(int)height);
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    unsigned char *rawData = (unsigned char*) calloc(height * width * 4, sizeof(unsigned char));
+    NSUInteger bytesPerPixel = 4;
+    NSUInteger bytesPerRow = bytesPerPixel * width;
+    NSUInteger bitsPerComponent = 8;
+    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
+                                                 bitsPerComponent, bytesPerRow, colorSpace,
+                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    CGColorSpaceRelease(colorSpace);
+    
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+    CGContextRelease(context);
+    
+    int cArrayPtr = 0;
+    // Now your rawData contains the image data in the RGBA8888 pixel format.
+    NSUInteger byteIndex = 0;
+    numPixels1 = (int)width * (int)height; //Loop over all image data...
+    int row = 0;
+    //int ucptr = 0;
+    for (int i = 0 ; i < numPixels1 ; i++)
+    {
+        //CGFloat alpha = ((CGFloat) rawData[byteIndex + 3] ) / 255.0f;
+        CGFloat red   = ((CGFloat) rawData[byteIndex]     ) / 255.0f;
+        CGFloat green = ((CGFloat) rawData[byteIndex + 1] ) / 255.0f;
+        CGFloat blue  = ((CGFloat) rawData[byteIndex + 2] ) / 255.0f;
+        int ired   =  (int)rawData[byteIndex];
+        int igreen =  (int)rawData[byteIndex + 1];
+        int iblue  =  (int)rawData[byteIndex + 2];
+        byteIndex += bytesPerPixel;
+        cArray1[cArrayPtr++] = ired;
+        cArray1[cArrayPtr++] = igreen;
+        cArray1[cArrayPtr++] = iblue;
+        if ((hverbose == 2) && (i % width == 0))
+        {
+            row = i/width;
+            NSLog(@" row %d rgb %f %f %f ",row,(float)red,(float)green,(float)blue);
+        }
+    }
+    
+    free(rawData);
+} //end getRGBAsFromImage
+#else
 -(void) getRGBAsFromImage:(NSImage*)image
 {
     int width,height;
@@ -208,7 +361,7 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     NSUInteger byteIndex = 0;
     
     numPixels1 = (int)width * (int)height; //Loop over all image data...
-
+    
     for (int i = 0 ; i < numPixels1 ; i++) //Loop over entire image...
     {
         int ired   =  (int)rawData[byteIndex];
@@ -221,6 +374,132 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     } //end i loop
 } //end getRGBAsFromImage
 
+//===HDKTetra===================================================================
+// Performs image "blocking" and color posterization. Assumes 24-bit RGB image
+-(NSImage *)preprocessImage : (NSImage *)inputImage : (int) blockSize : (int) colorDepth
+{
+    int loopx,loopy,iptr,i;
+    
+    //Pull out image data into TIFF representation...
+    NSData *data = [inputImage TIFFRepresentation];
+    int workImageWidth  = inputImage.size.width;
+    int workImageHeight = inputImage.size.height;
+    
+    //OK at this point mb actually has the TIFF raw data.
+    //  NOTE first 8 bytes are reserved for TIFF header!
+    unsigned char * mb = [data bytes];
+    int blen      = (int)[data length];
+    //Assumes RGB data, NOT RGBA
+    int rowsize   = 3*workImageWidth;
+    int numpixels = inputImage.size.width * inputImage.size.height;
+    
+    int numchannels = blen / numpixels;
+    rowsize = numchannels * workImageWidth; //Number of RGB items per row
+    //NSLog(@" blen %d workImageWidth %d np %d 3np %d 4np %d numchannels: %d",blen,workImageWidth,numpixels,3*numpixels,4*numpixels,numchannels);
+    
+    //Copy to 2nd buffer...
+    unsigned char *mb2 = (unsigned char *) malloc(blen);
+    for (i=0;i<blen;i++) mb2[i] = mb[i];
+    
+    //Blocksize....
+    int lpptr = 0;
+    if (blockSize > 1) for(loopy=0;loopy<workImageHeight;loopy+=blockSize)
+    {
+        for(loopx=0;loopx<workImageWidth;loopx+=blockSize)
+        {
+            //Fills mb2 pixel array with "blocked" data from mb pixel array...
+            [self pixelBlock: mb :mb2 :loopx :loopy : numchannels : rowsize : blockSize];
+            lpptr++;
+        } //end loopx
+    } //end loopy
+    
+    //Color Depth...
+    lpptr = 0;
+    unsigned char r,g,b;
+    unsigned char bmask;
+    
+    //Get a bit mask based on the number of colors we will be reducing down to...
+    //  a = 1010
+    //  b = 1011
+    //  c = 1100
+    //  d = 1101
+    //  e = 1110
+    //Masking...    1  1  1  1  1  1  1  1
+    // depth        X  X  3  4  5  6  7  8
+    bmask = 0xff;
+    switch(colorDepth)
+    {
+        case 2: bmask = 0xc0;
+            break;
+        case 3: bmask = 0xe0;
+            break;
+        case 4: bmask = 0xf0;
+            break;
+        case 5: bmask = 0xf8;
+            break;
+        case 6: bmask = 0xfc;
+            break;
+        case 7: bmask = 0xfe;
+            break;
+        case 8: bmask = 0xff;
+            break;
+    } //end switch
+    //Loop over all pixels, get RGB, mask R/G/B the same and store back in image
+    lpptr = 0;
+    for(loopy=0;loopy<workImageHeight;loopy+=blockSize)
+    {
+        for(loopx=0;loopx<workImageWidth;loopx+=blockSize)
+        {
+            iptr = tiffHeaderSize + lpptr;
+            if (blockSize == 1) //no blocking, get primary image
+            {
+                r = mb[iptr];
+                g = mb[iptr+1];
+                b = mb[iptr+2];
+            }
+            else   //Blocked image? Get mb2, blocked 2nd image
+            {
+                r = mb2[iptr];
+                g = mb2[iptr+1];
+                b = mb2[iptr+2];
+            }
+            r = r & bmask;
+            g = g & bmask;
+            b = b & bmask;
+            mb2[iptr]   = r;
+            mb2[iptr+1] = g;
+            mb2[iptr+2] = b;
+            lpptr+=numchannels;
+        } //end loopx
+    } //end loopy
+    
+    
+    //Take our byte array mb, encapsulate it into an NSData object...
+    NSData *outData = [[NSData alloc] initWithBytes:mb2 length:blen];
+    //Now the NSData object gets turned into an NSImage
+    NSImage *outputImage = [[NSImage alloc] initWithData:outData];
+    free(mb2);
+    return outputImage;
+} //end preprocessImage
+
+/*-----------------------------------------------------------*/
+/*-----------------------------------------------------------*/
+double drand(double lo_range,double hi_range )
+{
+    int rand_int;
+    double tempd,outd;
+    
+    rand_int = rand();
+    tempd = (double)rand_int/(double)RAND_MAX;  /* 0.0 <--> 1.0*/
+    
+    outd = (double)(lo_range + (hi_range-lo_range)*tempd);
+    return(outd);
+}   //end drand
+
+
+
+
+#endif
 
 //=====[ColorSuggester]======================================================================
 // Loops over image, finds brightest/darkest RGB color,
@@ -241,7 +520,11 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     float yellowDiff  = 10.0;
     CGFloat tred,tgreen,tblue,trgb;
     int red255,green255,blue255;
+#ifdef IOS_BUILD
+    UIColor *tmpc;
+#else
     NSColor *tmpc;
+#endif
     
     //Loop over image; accumulate stats..
     int cArrayPtr = 0;
@@ -252,7 +535,11 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
         tgreen = cArray1[cArrayPtr++];
         tblue  = cArray1[cArrayPtr++];
         trgb     = tred + tgreen + tblue;
+#ifdef IOS_BUILD
+        tmpc = [UIColor colorWithRed:(float)tred*INV255 green:(float)tgreen*INV255 blue:(float)tblue*INV255 alpha:1];
+#else
         tmpc = [NSColor colorWithRed:(float)tred*INV255 green:(float)tgreen*INV255 blue:(float)tblue*INV255 alpha:1];
+#endif
         [self RGBtoHLS:red255 :green255 :blue255];
         if (trgb > tbright) //Check for brightest pixel...
         {
@@ -279,43 +566,67 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
             tminSat             = SSS;
         }
         //Check for pixel closest to pure Red...
+#ifdef IOS_BUILD
+        cdiff = [self colorDifference: tmpc : [UIColor redColor]];
+#else
         cdiff = [self colorDifference: tmpc : [NSColor redColor]];
-        if (cdiff < redDiff)
+#endif
+       if (cdiff < redDiff)
         {
             mostRedIndex = i;
             mostRedPixel = tmpc;
             redDiff      = cdiff;
         }
         // Same for Green/Blue/Cyan/Magenta/Yellow...
+#ifdef IOS_BUILD
+        cdiff = [self colorDifference: tmpc : [UIColor greenColor]];
+#else
         cdiff = [self colorDifference: tmpc : [NSColor greenColor]];
+#endif
         if (cdiff < greenDiff)
         {
             mostGreenIndex = i;
             mostGreenPixel = tmpc;
             greenDiff      = cdiff;
         }
+#ifdef IOS_BUILD
+        cdiff = [self colorDifference: tmpc : [UIColor blueColor]];
+#else
         cdiff = [self colorDifference: tmpc : [NSColor blueColor]];
+#endif
         if (cdiff < blueDiff)
         {
             mostBlueIndex = i;
             mostBluePixel = tmpc;
             blueDiff      = cdiff;
         }
+#ifdef IOS_BUILD
+        cdiff = [self colorDifference: tmpc : [UIColor cyanColor]];
+#else
         cdiff = [self colorDifference: tmpc : [NSColor cyanColor]];
+#endif
         if (cdiff < cyanDiff)
         {
             mostCyanIndex = i;
             mostCyanPixel = tmpc;
             cyanDiff      = cdiff;
         }
+#ifdef IOS_BUILD
+        cdiff = [self colorDifference: tmpc : [UIColor magentaColor]];
+#else
         cdiff = [self colorDifference: tmpc : [NSColor magentaColor]];
+#endif
         if (cdiff < magentaDiff)
         {
             mostMagentaIndex = i;
             mostMagentaPixel = tmpc;
             magentaDiff      = cdiff;
         }
+#ifdef IOS_BUILD
+        cdiff = [self colorDifference: tmpc : [UIColor yellowColor]];
+#else
         cdiff = [self colorDifference: tmpc : [NSColor yellowColor]];
+#endif
         if (cdiff < yellowDiff)
         {
             mostYellowIndex = i;
@@ -396,6 +707,22 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     }
 } //end RGBtoHLS
 
+//-----------------------------------------------------------
+// Crude rude and obnoxious: gets hls raw stuff...
+-(int) getHHH
+{
+    return HHH;
+}
+-(int) getLLL
+{
+    return LLL;
+}
+-(int) getSSS
+{
+    return SSS;
+}
+
+
 //=====[ColorSuggester]======================================================================
 // Compares two sets of RGB values , gets absolute difference
 //  Colorspace is 0 - 255
@@ -411,9 +738,13 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 
 
 //=====[ColorSuggester]======================================================================
-// Compares two NSColors, returns sum of R/G/B differences.
+// Compares two UIColors, returns sum of R/G/B differences.
 //  Colorspace is 0.0 - 1.0
+#ifdef IOS_BUILD
+-(float) colorDifference : (UIColor *)c1 : (UIColor *)c2
+#else
 -(float) colorDifference : (NSColor *)c1 : (NSColor *)c2
+#endif
 {
     float diff = 0;
     const CGFloat* components1;
@@ -438,7 +769,11 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     int huebins[256];      //Hue bins...
     int huebinsXY[256];    //XY bins of last pixel in hue...
     int hueRGB[256][3];
+#ifdef IOS_BUILD
+    UIColor *tmpc;
+#else
     NSColor *tmpc;
+#endif
     //Clear Hue Bins...
     for (i=0;i<256;i++)
     {
@@ -556,7 +891,11 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
         row   = pindex / width1;
         col   = pindex % width1;
         //if (hverbose) NSLog(@" topten index %d",i);
+#ifdef IOS_BUILD
+        tmpc = [UIColor colorWithRed:(CGFloat)red*INV255 green:(CGFloat)green*INV255 blue:(CGFloat)blue*INV255 alpha:1];
+#else
         tmpc = [NSColor colorWithRed:(CGFloat)red*INV255 green:(CGFloat)green*INV255 blue:(CGFloat)blue*INV255 alpha:1];
+#endif
         [topTenColors addObject:tmpc]; //Store top ten color away...
         colorx = pindex%width1;
         colory = pindex/width1;
@@ -711,7 +1050,11 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     binsthresh = (int *) malloc(MAX_HIST_BINS * sizeof(int) * 3);
     int *binsIndices;  //Points to color index in RGB raw array
     binsIndices = (int *) malloc(MAX_HIST_BINS * sizeof(int));
+#ifdef IOS_BUILD
+    UIColor *tmpc;
+#else
     NSColor *tmpc;
+#endif
     NSUInteger index;
     int hthresh,popint;
     int red,green,blue;
@@ -751,10 +1094,8 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     ssize = 0;
     hthresh = _binThresh; // use externally set threshold property...
     if (hthresh < 1) hthresh = 1;
-    //DHS Jan 28: set thresh as percentage of pixel count...
-    hthresh = hthresh * width1 * height1 / 100;
     int bin2ptr = 0;
-    if (1 || hverbose) NSLog(@" Culling bins below threshold %d",hthresh);
+    if (hverbose) NSLog(@" Culling bins below threshold %d",hthresh);
     // Loop over ALL our bins we found, add results to output arrays...
     //Produce sparse list of bins w/ populations over threshold
     for (i=0;i<MAX_HIST_BINS;i++)
@@ -812,7 +1153,7 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
         ttptr++;
     }
 
-    //Produce results now... produces arrays of NSColor's and CGPoint's
+    //Produce results now... produces arrays of UIColor's and CGPoint's
     //  this is redundant; we don't need to call this stuff;
     //  we can just as easily use the intermediate "topTen..." results.
     //CGPoint ttXY;
@@ -828,8 +1169,12 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
         blue  = RGBindex       & 0xff;
         row   = pindex / width1;                   //Pull out XY color location from picture pixel index
         col   = pindex % width1;
-        //This is inefficient: add a NSColor to an array; would be faster to just use a [colorcount][3] array
+        //This is inefficient: add a UIColor to an array; would be faster to just use a [colorcount][3] array
+#ifdef IOS_BUILD
+        tmpc = [UIColor colorWithRed:(CGFloat)red*INV255 green:(CGFloat)green*INV255 blue:(CGFloat)blue*INV255 alpha:1];
+#else
         tmpc = [NSColor colorWithRed:(CGFloat)red*INV255 green:(CGFloat)green*INV255 blue:(CGFloat)blue*INV255 alpha:1];
+#endif
         [topTenColors addObject:tmpc];           //Store top ten color away...
         topTenXY[i] = CGPointMake(col,row);      // Inefficient: make a CGPoint for this color's location...
         //pull rgb components out
@@ -932,18 +1277,26 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 -(void) refindColors
 {
     
-    int i,j;
+    int i,j,row,col,leftEdge,rightEdge,topEdge,bottomEdge;
     int red,green,blue,randx,randy,rindex,bitmapsize,tred,tgreen,tblue;
     int cArrayPtr,matchToler;
     int matchX,matchY;
+#ifdef IOS_BUILD
+    UIColor *tmpc1;
+#else
     NSColor *tmpc1;
+#endif
     BOOL wraparound;
-    BOOL gotMatch;
+    BOOL gotMatch,checkColor;
     const CGFloat* components;
     // Overall pixel data size
     bitmapsize   = 3*width1 * height1;
     // Determines how close a found color is to one of our reduced list
     matchToler   = 15;
+    leftEdge     = 8;
+    topEdge      = 8;
+    rightEdge    = width1-8;
+    bottomEdge   = height1 - 8;
     //This is how many colors we have reduced down to...
     int redcount = (int)[reducedColors count];
     
@@ -968,31 +1321,48 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
         //Loop over the entire thang or until we find a match
         for (j = 0 ; j < numPixels1 && !gotMatch ; j++)
         {
+            row = j / width1;
+            col = j % height1;
+            //Handle wraparound
             //  (remember we started somewhere in middle of image)
             if (cArrayPtr >= bitmapsize-3)
             {
+                if (wraparound) break;
                 cArrayPtr = 0;
                 wraparound = TRUE;
             }
-            //Get next color
-            tred   = cArray1[cArrayPtr++];
-            tgreen = cArray1[cArrayPtr++];
-            tblue  = cArray1[cArrayPtr++];
-            //Handle wraparound
-            //Get RGB sum of current examined pixel and match color...
-            int cdiff = [self colorDifferenceRGB: red : green : blue : tred : tgreen : tblue];
-            //Found a color in image that's close enough to our "reduced" color??
-            if ( cdiff < matchToler)
+            checkColor = TRUE;
+            if (!wraparound)
             {
-                gotMatch = TRUE;                  //Set flag to exit loop
-                int pixelcounter = cArrayPtr/3;   //Get pixel's location in array
-                matchX   = pixelcounter % width1; // and get XY from that...
-                matchY   = pixelcounter / width1;
+                if (row < topEdge)                  checkColor = FALSE;
+                if (checkColor && col < leftEdge)   checkColor = FALSE;
+                if (checkColor && col > rightEdge)  checkColor = FALSE;
+                if (checkColor && row > bottomEdge) checkColor = FALSE;
             }
-        }
+            if (checkColor)
+            {
+                //Get next color
+                tred   = cArray1[cArrayPtr++];
+                tgreen = cArray1[cArrayPtr++];
+                tblue  = cArray1[cArrayPtr++];
+                //Get RGB sum of current examined pixel and match color...
+                int cdiff = [self colorDifferenceRGB: red : green : blue : tred : tgreen : tblue];
+                //Found a color in image that's close enough to our "reduced" color??
+                if ( cdiff < matchToler)
+                {
+                    gotMatch = TRUE;                  //Set flag to exit loop
+                    int pixelcounter = cArrayPtr/3;   //Get pixel's location in array
+                    matchX   = pixelcounter % width1; // and get XY from that...
+                    matchY   = pixelcounter / width1;
+                }
+                
+            } //end checkColor
+        } //end j loop
         //Save XY for this color
         reducedXY[i] = CGPointMake((CGFloat)matchX, (CGFloat)matchY);
-        if (hverbose) NSLog(@" re-found color [%d] rgb %d %d %d matchat (%d,%d) ",i,red,green,blue,matchX,matchY);
+        [self RGBtoHLS:red :green :blue];
+        //asdf good generic dump...
+        if (hverbose) NSLog(@" re-found color [%d] rgb %d %d %d HLS %d %d %d matchat (%d,%d) ",i,red,green,blue,HHH,LLL,SSS,matchX,matchY);
     } //end for i
     
 } //end refindColors
@@ -1005,8 +1375,13 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     int margin = 0; // Try to find colors that aren't right at the edge
     int i,j,row,col;
     int found;
+#ifdef IOS_BUILD
+    UIColor *tmpc;
+    UIColor *sourceColor;
+#else
     NSColor *tmpc;
     NSColor *sourceColor;
+#endif
     const CGFloat* componentstt;
     const CGFloat* componentssc;
 
@@ -1024,7 +1399,11 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
             green = cArray1[cArrayPtr++];
             blue  = cArray1[cArrayPtr++];
 
+#ifdef IOS_BUILD
+            sourceColor = [UIColor colorWithRed:(float)red*INV255 green:(float)green*INV255 blue:(float)blue*INV255 alpha:1];
+#else
             sourceColor = [NSColor colorWithRed:(float)red*INV255 green:(float)green*INV255 blue:(float)blue*INV255 alpha:1];
+#endif
             //Compare bitmap color with our "popular" colors, get something CLOSE
             float cdiff = [self colorDifference : tmpc : sourceColor];
             componentssc = CGColorGetComponents(sourceColor.CGColor);
@@ -1059,11 +1438,19 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 
 //=====[ColorSuggester]======================================================================
 // Returns nth most popular color from topten area...
+#ifdef IOS_BUILD
+-(UIColor *) getNthPopularColor: (int) n
+{
+    if (n < 0 || n >= TOPTENCOUNT) return [UIColor blackColor];  //Handle illegal input
+    return [topTenColors objectAtIndex:n];
+} //end getNthPopularCooor
+#else
 -(NSColor *) getNthPopularColor: (int) n
 {
     if (n < 0 || n >= TOPTENCOUNT) return [NSColor blackColor];  //Handle illegal input
     return [topTenColors objectAtIndex:n];
 } //end getNthPopularCooor
+#endif
 
 //=====[ColorSuggester]======================================================================
 // Gets most popular color, then finds another popular color that has the farthest
@@ -1074,9 +1461,13 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     BOOL found;
     float maxdist,cdist;
     float middledist,middletoler;
+#ifdef IOS_BUILD
+    UIColor *tmpc1;
+    UIColor *tmpc2;
+#else
     NSColor *tmpc1;
     NSColor *tmpc2;
-
+#endif
     rcount = 0;
     [reducedColors removeAllObjects];
 
@@ -1199,9 +1590,14 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 {
     float thresh = _rgbDiffThresh; //RGB difference thresh
     float cdiff;
+#ifdef IOS_BUILD
+    UIColor *tmpc1;
+    UIColor *tmpc2;
+#else
     NSColor *tmpc1;
     NSColor *tmpc2;
-    int reduceLoop;
+#endif
+   int reduceLoop;
     int i,j;
     int rcount = 0;
     [reducedColors removeAllObjects];
@@ -1264,12 +1660,21 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 
 
 //=====[ColorSuggester]======================================================================
+#ifdef IOS_BUILD
+-(UIColor *) getNthReducedColor: (int) n
+{
+    if (n < 0 || n >= [reducedColors count]) return [UIColor blackColor];
+    //if (hverbose) NSLog(@" get reducedColor %@",[reducedColors objectAtIndex:n]);
+    return [reducedColors objectAtIndex:n];
+} //end getNthReducedColor
+#else
 -(NSColor *) getNthReducedColor: (int) n
 {
     if (n < 0 || n >= [reducedColors count]) return [NSColor blackColor];
     //if (hverbose) NSLog(@" get reducedColor %@",[reducedColors objectAtIndex:n]);
     return [reducedColors objectAtIndex:n];
-} //end getNthPopularCooor
+} //end getNthReducedColor
+#endif
 
 //=====[ColorSuggester]======================================================================
 -(int) getNthReducedPopulation : (int) n
@@ -1281,7 +1686,11 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 
 
 //=====[ColorSuggester]======================================================================
+#ifdef IOS_BUILD
+-(float) colorDistance : (UIColor *)c1 : (UIColor *) c2
+#else
 -(float) colorDistance : (NSColor *)c1 : (NSColor *) c2
+#endif
 {
     float distance = 0.0;
     float rdel,gdel,bdel;
@@ -1302,9 +1711,12 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 -(void) dump
 {
     int i,red,green,blue;
+#ifdef IOS_BUILD
+    UIColor *tmpc1;
+#else
     NSColor *tmpc1;
-    const CGFloat* components;
-//    return;
+#endif
+   const CGFloat* components;
     NSLog(@" ColorSuggester Dump...");
     NSLog(@"   topten:");
     for (i=0;i<TOPTENCOUNT;i++)
@@ -1314,7 +1726,7 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
         red        = (int)(255*components[0]);
         green      = (int)(255*components[1]);
         blue       = (int)(255*components[2]);
-        NSLog(@"  [%d]: XY %f,%f: RGB (%d,%d,%d)",i,topTenXY[i].x,topTenXY[i].y,red,green,blue);
+        if (red || green || blue) NSLog(@"  [%d]: XY %f,%f: RGB (%d,%d,%d)",i,topTenXY[i].x,topTenXY[i].y,red,green,blue);
     }
     NSLog(@"   reduced, found %d colors", (int)reducedColors.count);
     for (i=0;i<[reducedColors count];i++)
@@ -1357,52 +1769,44 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
 } //end getAlgoDesc
 
 
-
-//===HDKTetra===================================================================
-// Performs image "blocking" and color posterization. Assumes 24-bit RGB image
--(NSImage *)preprocessImage : (NSImage *)inputImage : (int) blockSize : (int) colorDepth
+//=====[ColorSuggester]======================================================================
+#ifdef IOS_BUILD
+-(void) algo_histogram :(UIImage *)input
+#else
+-(void) algo_histogram :(NSImage *)input
+#endif
 {
-    int loopx,loopy,iptr,i;
-    
-    //Pull out image data into TIFF representation...
-    NSData *data = [inputImage TIFFRepresentation];
-    int workImageWidth  = inputImage.size.width;
-    int workImageHeight = inputImage.size.height;
+    //NSLog(@" algohist TOP...");
+    //These should be set by parent object...
+    //    _binThresh     = 200;
+    //    _rgbDiffThresh = 0.01;
+    width1  = input.size.width;
+    height1 = input.size.height;
+    //NSLog(@" algohist load input xy %d %d...",width1,height1);
+    [self loadInput:input];
+    //[self analyze];   //SKIP: too slow!
+    //NSLog(@" algohist reduce color depth...");
+    [self reduceColorDepth : 2];
+    //NSLog(@" algohist create histogram...");
+    [self createHistogram];
+    //[self createClumps];
+    //NSLog(@" algohist reduce colors...");
+    [self reduceColors];
+    //NSLog(@" algohist refind colors...");
+    [self refindColors];
+    if (hverbose) [self dump];
+    [self cleanup];
+    //NSLog(@" algohist DONE...");
+    [self smartColors];
+} //end algo_histogram
 
-    //OK at this point mb actually has the TIFF raw data.
-    //  NOTE first 8 bytes are reserved for TIFF header!
-    unsigned char * mb = [data bytes];
-    int blen      = (int)[data length];
-    //Assumes RGB data, NOT RGBA
-    int rowsize   = 3*workImageWidth;
-    int numpixels = inputImage.size.width * inputImage.size.height;
-    
-    int numchannels = blen / numpixels;
-    rowsize = numchannels * workImageWidth; //Number of RGB items per row
-    //NSLog(@" blen %d workImageWidth %d np %d 3np %d 4np %d numchannels: %d",blen,workImageWidth,numpixels,3*numpixels,4*numpixels,numchannels);
-    
-    //Copy to 2nd buffer...
-    unsigned char *mb2 = (unsigned char *) malloc(blen);
-    for (i=0;i<blen;i++) mb2[i] = mb[i];
-    
-    //Blocksize....
-    int lpptr = 0;
-    if (blockSize > 1) for(loopy=0;loopy<workImageHeight;loopy+=blockSize)
-    {
-        for(loopx=0;loopx<workImageWidth;loopx+=blockSize)
-        {
-            //Fills mb2 pixel array with "blocked" data from mb pixel array...
-            [self pixelBlock: mb :mb2 :loopx :loopy : numchannels : rowsize : blockSize];
-            lpptr++;
-        } //end loopx
-    } //end loopy
-    
-    //Color Depth...
-    lpptr = 0;
-    unsigned char r,g,b;
-    unsigned char bmask;
-    
-    //Get a bit mask based on the number of colors we will be reducing down to...
+
+
+//=====[ColorSuggester]======================================================================
+-(void) reduceColorDepth : (int) colorDepth
+{
+    int loopx,loopy;
+    int r,g,b;
     //  a = 1010
     //  b = 1011
     //  c = 1100
@@ -1410,7 +1814,7 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     //  e = 1110
     //Masking...    1  1  1  1  1  1  1  1
     // depth        X  X  3  4  5  6  7  8
-    bmask = 0xff;
+    int bmask = 0xff;
     switch(colorDepth)
     {
         case 2: bmask = 0xc0;
@@ -1427,44 +1831,28 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
             break;
         case 8: bmask = 0xff;
             break;
-    } //end switch
-    //Loop over all pixels, get RGB, mask R/G/B the same and store back in image
-    lpptr = 0;
-    for(loopy=0;loopy<workImageHeight;loopy+=blockSize)
+            
+    }
+    //asdf
+    int iptr=0;
+    for(loopy=0;loopy<height1;loopy++)
     {
-        for(loopx=0;loopx<workImageWidth;loopx+=blockSize)
+        for(loopx=0;loopx<width1;loopx++)
         {
-            iptr = tiffHeaderSize + lpptr;
-            if (blockSize == 1) //no blocking, get primary image
-            {
-                r = mb[iptr];
-                g = mb[iptr+1];
-                b = mb[iptr+2];
-            }
-            else   //Blocked image? Get mb2, blocked 2nd image
-            {
-                r = mb2[iptr];
-                g = mb2[iptr+1];
-                b = mb2[iptr+2];
-            }
+            //iptr = tiffHeaderSize + lpptr;
+            r = cArray1[iptr];
+            g = cArray1[iptr+1];
+            b = cArray1[iptr+2];
             r = r & bmask;
             g = g & bmask;
             b = b & bmask;
-            mb2[iptr]   = r;
-            mb2[iptr+1] = g;
-            mb2[iptr+2] = b;
-            lpptr+=numchannels;
+            cArray1[iptr]   = r;
+            cArray1[iptr+1] = g;
+            cArray1[iptr+2] = b;
         } //end loopx
     } //end loopy
     
-    
-    //Take our byte array mb, encapsulate it into an NSData object...
-    NSData *outData = [[NSData alloc] initWithBytes:mb2 length:blen];
-    //Now the NSData object gets turned into an NSImage
-    NSImage *outputImage = [[NSImage alloc] initWithData:outData];
-    free(mb2);
-    return outputImage;
-} //end preprocessImage
+} //end reduceColorDepth
 
 //===HDKTetra===================================================================
 // Simple block drawer: draws a solid block into outbuf; uses the
@@ -1496,21 +1884,54 @@ int iparray[TOPTENCOUNT]; //Pointers to original unsorted bin data
     
     
 } //end pixelBlock
-
-
-/*-----------------------------------------------------------*/
-/*-----------------------------------------------------------*/
-double drand(double lo_range,double hi_range )
+//=====[ColorSuggester]======================================================================
+#ifdef IOS_BUILD
+-(void) algo_opposites:(UIImage *)input
+#else
+-(void) algo_opposites:(NSImage *)input
+#endif
 {
-    int rand_int;
-    double tempd,outd;
-    
-    rand_int = rand();
-    tempd = (double)rand_int/(double)RAND_MAX;  /* 0.0 <--> 1.0*/
-    
-    outd = (double)(lo_range + (hi_range-lo_range)*tempd);
-    return(outd);
-}   //end drand
+    [self loadInput:input];
+    [self createHistogram];
+    [self createClumps];
+    [self findOpposites];
+    [self refindColors];
+    if (hverbose) [self dump];
+    [self cleanup];
+}
+
+//=====[ColorSuggester]======================================================================
+#ifdef IOS_BUILD
+-(void) algo_huehistogram :(UIImage *)input
+#else
+-(void) algo_huehistogram :(NSImage *)input
+#endif
+{
+    [self loadInput:input];
+    [self createHueHistogram];
+    [self createHueClumps];
+    [self reduceColors];
+    [self refindColors];
+    if (hverbose) [self dump];
+    [self cleanup];
+}
+
+//=====[ColorSuggester]======================================================================
+// Top-level algos: basic histogram...
+#ifdef IOS_BUILD
+-(void) algo_shrunk :(UIImage *)input
+#else
+-(void) algo_shrunk :(NSImage *)input
+#endif
+{
+    [self loadInput:input];
+    [self createHistogram];
+    [self reduceColors];
+    [self refindColors];
+    if (hverbose) [self dump];
+    [self cleanup];
+} //end algo_histogram
+
 
 
 
@@ -1553,23 +1974,6 @@ int partition(  int l, int r) {
     t = iparray[l]; iparray[l] = iparray[j]; iparray[j] = t;
     return j;
 } //end partition
-
-
-
-//-----------------------------------------------------------
-// Crude rude and obnoxious: gets hls raw stuff...
--(int) getHHH
-{
-    return HHH;
-}
--(int) getLLL
-{
-    return LLL;
-}
--(int) getSSS
-{
-    return SSS;
-}
 
 
 @end

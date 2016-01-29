@@ -20,10 +20,10 @@
 		72463B571C064E21003B43BF /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72463B561C064E21003B43BF /* ImageIO.framework */; };
 		72463B591C064E2A003B43BF /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72463B581C064E2A003B43BF /* CoreImage.framework */; };
 		72463B5B1C064E62003B43BF /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72463B5A1C064E62003B43BF /* Quartz.framework */; };
-		725676371C0663830090ABE5 /* CColorSuggester.m in Sources */ = {isa = PBXBuildFile; fileRef = 725676361C0663830090ABE5 /* CColorSuggester.m */; };
 		72BC4D5D1C06691A001C7806 /* heartnot.png in Resources */ = {isa = PBXBuildFile; fileRef = 72BC4D5C1C06691A001C7806 /* heartnot.png */; };
 		72BC4D5F1C066A4C001C7806 /* cross64.png in Resources */ = {isa = PBXBuildFile; fileRef = 72BC4D5E1C066A4C001C7806 /* cross64.png */; };
 		72C8CC241C14DBD300A09A67 /* crosscirc128.png in Resources */ = {isa = PBXBuildFile; fileRef = 72C8CC231C14DBD300A09A67 /* crosscirc128.png */; };
+		72C902A51C5C1C54001807C2 /* ColorSuggester.m in Sources */ = {isa = PBXBuildFile; fileRef = 72C902A31C5C1C54001807C2 /* ColorSuggester.m */; };
 		72CAAEF21C3023F1003012D4 /* test2.png in Resources */ = {isa = PBXBuildFile; fileRef = 72CAAEF11C3023F1003012D4 /* test2.png */; };
 /* End PBXBuildFile section */
 
@@ -46,11 +46,11 @@
 		72463B561C064E21003B43BF /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		72463B581C064E2A003B43BF /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		72463B5A1C064E62003B43BF /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
-		725676351C0663830090ABE5 /* CColorSuggester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CColorSuggester.h; sourceTree = "<group>"; };
-		725676361C0663830090ABE5 /* CColorSuggester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CColorSuggester.m; sourceTree = "<group>"; };
 		72BC4D5C1C06691A001C7806 /* heartnot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = heartnot.png; path = Resources/heartnot.png; sourceTree = "<group>"; };
 		72BC4D5E1C066A4C001C7806 /* cross64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cross64.png; path = Resources/cross64.png; sourceTree = "<group>"; };
 		72C8CC231C14DBD300A09A67 /* crosscirc128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = crosscirc128.png; path = Resources/crosscirc128.png; sourceTree = "<group>"; };
+		72C902A31C5C1C54001807C2 /* ColorSuggester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ColorSuggester.m; sourceTree = "<group>"; };
+		72C902A41C5C1C54001807C2 /* ColorSuggester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorSuggester.h; sourceTree = "<group>"; };
 		72CAAEF11C3023F1003012D4 /* test2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = test2.png; path = Resources/test2.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -95,8 +95,8 @@
 				72463B381C0632C4003B43BF /* AppDelegate.m */,
 				72463B3D1C0632C4003B43BF /* ViewController.h */,
 				72463B3E1C0632C4003B43BF /* ViewController.m */,
-				725676351C0663830090ABE5 /* CColorSuggester.h */,
-				725676361C0663830090ABE5 /* CColorSuggester.m */,
+				72C902A31C5C1C54001807C2 /* ColorSuggester.m */,
+				72C902A41C5C1C54001807C2 /* ColorSuggester.h */,
 				72463B4E1C0636BF003B43BF /* HDKCGenerate.h */,
 				72463B4F1C0636BF003B43BF /* HDKCGenerate.m */,
 				72463B401C0632C4003B43BF /* Assets.xcassets */,
@@ -217,7 +217,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				72463B3F1C0632C4003B43BF /* ViewController.m in Sources */,
-				725676371C0663830090ABE5 /* CColorSuggester.m in Sources */,
+				72C902A51C5C1C54001807C2 /* ColorSuggester.m in Sources */,
 				72463B3C1C0632C4003B43BF /* main.m in Sources */,
 				72463B501C0636BF003B43BF /* HDKCGenerate.m in Sources */,
 				72463B391C0632C4003B43BF /* AppDelegate.m in Sources */,

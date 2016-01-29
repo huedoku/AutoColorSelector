@@ -16,25 +16,46 @@
 //  Created by Dave Scruton on 11/4/15.
 //  Copyright © 2015 huedoku, inc. All rights reserved.
 //
-//#import <UIKit/UIKit.h>
-#import <Cocoa/Cocoa.h>
+#define NOTIOS_BUILD
 
+#ifdef IOS_BUILD
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#else
+#import <Cocoa/Cocoa.h>
+#endif
 
 #define ALGO_HISTOGRAM          101
 #define ALGO_OPPOSITE12         102
 #define ALGO_HUEHISTOGRAM       103
+#define ALGO_SHRUNK             104
 #define MAX_CLUMPS 256
 #define MAX_CLUMP_DATA 256
 
-#define TOPTENCOUNT 512
-@interface CColorSuggester : NSObject
+#define TOPTENCOUNT 256
+@interface ColorSuggester : NSObject
 {
-    NSImage *workImage1;
-    NSImage *workImage2;
     int width1,height1,width2,height2;
     int numPixels1,numPixels2;
-    
     int *cArray1;
+
+    //ios-specific stuff
+#ifdef IOS_BUILD
+    UIImage *workImage1;
+    UIImage *workImage2;
+    UIColor *brightestPixel;
+    UIColor *darkestPixel;
+    UIColor *mostSaturatedPixel;
+    UIColor *leastSaturatedPixel;
+    UIColor *mostRedPixel;
+    UIColor *mostGreenPixel;
+    UIColor *mostBluePixel;
+    UIColor *mostCyanPixel;
+    UIColor *mostMagentaPixel;
+    UIColor *mostYellowPixel;
+#else
+    NSImage *workImage1;
+    NSImage *workImage2;
     NSColor *brightestPixel;
     NSColor *darkestPixel;
     NSColor *mostSaturatedPixel;
@@ -45,6 +66,7 @@
     NSColor *mostCyanPixel;
     NSColor *mostMagentaPixel;
     NSColor *mostYellowPixel;
+#endif
     int brightestIndex;
     int darkestIndex;
     int mostSaturatedIndex;
@@ -72,8 +94,11 @@
     int clumpSizes[MAX_CLUMPS];
     int clumpData[MAX_CLUMPS][MAX_CLUMP_DATA]; //Points to color data
     int clumpXY[MAX_CLUMPS][MAX_CLUMP_DATA];
+
+    int smartIndices[16];
+    int smartCount;
     
-    
+
 }
 
 @property (nonatomic , assign) int       whichAlgo;
@@ -81,30 +106,38 @@
 @property (nonatomic , assign) float     rgbDiffThresh;
 @property (nonatomic , assign) int       binCount;
 @property (nonatomic , assign) int       binAfterThreshCount;
+@property (nonatomic , assign) int       rowSkip;
 
-//@property (nonatomic , strong) NSString* fromUser;
-//@property (nonatomic , assign) int       uniquePuzzleId;
 
 -(void) loadReduced : (unsigned char *) rgbarray : (int) w : (int) h;
 -(void) analyze;
 -(void)       dump;
 -(CGPoint) getNthPopularXY : (int) n;
--(NSColor *) getNthPopularColor: (int) n;
 -(CGPoint) getNthReducedXY : (int) n;
--(NSColor *) getNthReducedColor: (int) n;
 -(int) getNthReducedPopulation : (int) n;
-//-(ColorSuggester *)    copy;
 -(int) getWidth1;
 -(int) getHeight1;
 -(int) getReducedCount;
 -(NSString *) getAlgoDesc;
+-(int) getNthSmartIndex : (int) n;
+- (void) RGBtoHLS : (int) RR : (int) GG : (int) BB;
 
+
+#ifdef IOS_BUILD
+-(UIColor *) getNthPopularColor: (int) n;
+-(UIColor *) getNthReducedColor: (int) n;
+-(void) algo_histogram :(UIImage *)input;
+-(void) algo_opposites :(UIImage *)input;
+-(void) algo_shrunk :(UIImage *)input;
+#else
+-(NSColor *) getNthPopularColor: (int) n;
+-(NSColor *) getNthReducedColor: (int) n;
 -(void) algo_histogram :(NSImage *)input;
 -(void) algo_opposites :(NSImage *)input;
--(void) algo_huehistogram :(NSImage *)input;
 -(NSImage *)preprocessImage : (NSImage *)inputImage : (int) blockSize : (int) colorDepth;
+-(void) algo_shrunk :(NSImage *)input;
+#endif
 
-- (void) RGBtoHLS : (int) RR : (int) GG : (int) BB;
 -(int) getHHH;
 -(int) getLLL;
 -(int) getSSS;

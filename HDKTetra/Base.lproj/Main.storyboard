@@ -697,8 +697,16 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uau-tV-e94">
-                                <rect key="frame" x="533" y="440" width="99" height="17"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Bin Pop (%)" id="GxR-ZX-2qQ">
+                                <rect key="frame" x="531" y="440" width="105" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Bin Pop x 0.1%" id="GxR-ZX-2qQ">
+                                    <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0I9-fJ-XEd">
+                                <rect key="frame" x="529" y="385" width="99" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Not Used" id="4t4-mB-5po">
                                     <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -706,7 +714,7 @@
                             </textField>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" tag="103" translatesAutoresizingMaskIntoConstraints="NO" id="QLV-5Q-MBa">
                                 <rect key="frame" x="4" y="163" width="512" height="512"/>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="greensun" id="jC2-b1-Coq"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="greensun" id="jC2-b1-Coq"/>
                             </imageView>
                             <colorWell fixedFrame="YES" tag="106" translatesAutoresizingMaskIntoConstraints="NO" id="htJ-Js-IN5">
                                 <rect key="frame" x="543" y="548" width="40" height="40"/>
@@ -848,8 +856,16 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EPl-XI-KC0">
+                                <rect key="frame" x="638" y="379" width="55" height="22"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="RCR-g1-XBd">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="clz-db-Vj1">
-                                <rect key="frame" x="531" y="350" width="101" height="17"/>
+                                <rect key="frame" x="531" y="307" width="101" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Pixel Blocksize" id="0Dm-Xz-IrN">
                                     <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -857,7 +873,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eCn-an-T3n">
-                                <rect key="frame" x="528" y="323" width="112" height="17"/>
+                                <rect key="frame" x="528" y="280" width="112" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Pixel RGB Depth" id="NvE-Fj-84b">
                                     <font key="font" size="13" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -881,7 +897,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ksY-Xb-ahT">
-                                <rect key="frame" x="639" y="347" width="55" height="22"/>
+                                <rect key="frame" x="639" y="304" width="55" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="tRf-l6-95h">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -889,23 +905,23 @@
                                 </textFieldCell>
                             </textField>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OiZ-Sx-E4t">
-                                <rect key="frame" x="646" y="320" width="47" height="22"/>
+                                <rect key="frame" x="646" y="277" width="47" height="22"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="I9x-6v-CeH">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7GN-Dd-Vaz">
-                                <rect key="frame" x="527" y="465" width="88" height="17"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Thresholds..." id="Kjs-xd-Kvh">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8O2-mN-P5a">
+                                <rect key="frame" x="526" y="332" width="156" height="18"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Image PreProcessing" id="jwv-vH-MnJ">
                                     <font key="font" size="15" name=".HelveticaNeueDeskInterface-Regular"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" tag="101" translatesAutoresizingMaskIntoConstraints="NO" id="Ogu-z9-XzS">
-                                <rect key="frame" x="611" y="287" width="88" height="32"/>
+                                <rect key="frame" x="611" y="244" width="88" height="32"/>
                                 <buttonCell key="cell" type="push" title="Redraw" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cej-ud-A6B">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -941,7 +957,7 @@
                                     <objectValues>
                                         <string>Algo 1:Histogram</string>
                                         <string>Algo 2:Opposites 1/2</string>
-                                        <string>Algo 3:Hue Histogram</string>
+                                        <string>Algo 3:Shrunk</string>
                                     </objectValues>
                                 </comboBoxCell>
                                 <connections>
@@ -966,6 +982,14 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7GN-Dd-Vaz">
+                                <rect key="frame" x="527" y="465" width="133" height="18"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Algorithm Params" id="Kjs-xd-Kvh">
+                                    <font key="font" size="15" name=".HelveticaNeueDeskInterface-Regular"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                         </subviews>
                     </view>
                     <connections>
@@ -984,6 +1008,7 @@
                         <outlet property="crossHair03" destination="boy-Wu-NO7" id="NCt-yG-d2y"/>
                         <outlet property="descriptionLabel" destination="Y6g-It-P6j" id="XsF-Fq-eKU"/>
                         <outlet property="logOutput" destination="uFh-lG-A9b" id="yqZ-Mm-a1e"/>
+                        <outlet property="rowSkipText" destination="EPl-XI-KC0" id="1Ee-e0-f7Y"/>
                         <outlet property="tlButton" destination="9bW-Rd-SXh" id="zvf-8p-pwv"/>
                         <outlet property="tlSwatch" destination="fBa-ON-zgL" id="XYS-mE-IkC"/>
                         <outlet property="trButton" destination="NAN-bY-lgf" id="slg-JV-h1Q"/>

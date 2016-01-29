@@ -11,13 +11,13 @@
 //
 //  Created by Dave Scruton on 11/25/15.
 //  Copyright © 2015 Huedoku Labs, Inc. All rights reserved.
-//
+//  1/28 Add rowskip
 
 #import "ViewController.h"
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
 #import "HDKCGenerate.h"
-#import "CColorSuggester.h"
+#import "ColorSuggester.h"
 
 
 
@@ -38,13 +38,14 @@ NSImage *squareCrosshair;
 NSImage *circCrosshair;
 int numReducedColors;
 
-int reducedIndices[4];
+int smartIndices[4];
+int smartCount;
 
 IKPictureTaker *pictureTaker;
 
 HDKCGenerate *hdkgen;
 
-CColorSuggester *csugg;
+ColorSuggester *csugg;
 
 NSButton *cross1;
 NSButton *cross2;
@@ -69,18 +70,20 @@ int pixelSelectX,pixelSelectY;
     //NSLog(@" viewDidLoad...");
     whichWell = 0;
     pictureTaker = [IKPictureTaker pictureTaker];
-    csugg = [[CColorSuggester alloc] init];
+    csugg = [[ColorSuggester alloc] init];
     crosswh = 40;
     // Do any additional setup after loading the view.
-    colorDepth = 8;
+    colorDepth = 2;
     blockSize  = 1;
+    rowSkip    = 8;
     
     circCrosshair   = [NSImage imageNamed:@"crosscirc128"];
     squareCrosshair = [NSImage imageNamed:@"cross64"];
-    _binPopText.stringValue = @"10";
-    _colorSimText.stringValue = @"0.05";
-    _blockSizeText.stringValue = @"1";
+    _binPopText.stringValue     = @"10";
+    _colorSimText.stringValue   = @"0.05";
+    _blockSizeText.stringValue  = @"1";
     _colorDepthText.stringValue = @"2";
+    _rowSkipText.stringValue    = @"8";
     whichAlgo = ALGO_HISTOGRAM;
 
 } //end viewDidLoad
@@ -142,7 +145,7 @@ int pixelSelectX,pixelSelectY;
     csugg.whichAlgo = whichAlgo;
     _descriptionLabel.stringValue = [csugg getAlgoDesc];
 
-    binthresh = 10;
+    binthresh = 1;
     colthresh = 0.15;
     csugg.binThresh = binthresh;
     csugg.rgbDiffThresh = colthresh;
@@ -170,8 +173,8 @@ int pixelSelectX,pixelSelectY;
         case ALGO_OPPOSITE12:
             [csugg algo_opposites : processedImage];
             break;
-        case ALGO_HUEHISTOGRAM:
-            [csugg algo_huehistogram : processedImage];
+        case ALGO_SHRUNK:
+            [csugg algo_shrunk : shrunkImage];
             break;
             
     }
@@ -244,147 +247,6 @@ int pixelSelectX,pixelSelectY;
 } //end getColorUnderMouse
 
 //===HDKTetra===================================================================
--(void)preprocessImage2
-{
-    int verbose = 0;
-    int x,y,i;
-    NSData *data = [originalImage TIFFRepresentation];
-    
-  //  NSColorSpace *cspace;
-    
-  //  cspace = [originalImage.
-    
-    int iwid = originalImage.size.width;
-    //OK at this point mb actually has the TIFF raw data.
-    //  NOTE first 8 bytes are reserved for TIFF header!
-    unsigned char * mb = [data bytes];
-    int blen = (int)[data length];
-    int rowsize = 3*iwid;
-    int numpixels = originalImage.size.width * originalImage.size.height;
-
-    int numchannels = blen / numpixels;
-
-    rowsize = numchannels * iwid;
-    
-    
-    NSLog(@" blen %d iwid %d np %d 3np %d 4np %d numchannels: %d",blen,iwid,numpixels,3*numpixels,4*numpixels,numchannels);
-    
-    //Copy to 2nd buffer...
-    unsigned char *mb2 = (unsigned char *) malloc(blen);
-    for (i=0;i<blen;i++) mb2[i] = mb[i];
-    
- 
-   // NSBitmapImageRep* imageRep = [[NSBitmapImageRep alloc] initWithData:[workImage TIFFRepresentation]];
-    //    NSColor* color = [imageRep colorAtX:pixelSelectX y:imageHeight - pixelSelectY];  asdf
-    if (verbose)
-    {
-        x = 10;y = 10;
-        for (i=0;i<512;i++)
-        {
-            int i3 = tiffHeaderSize + numchannels*i;
-            NSLog(@" data[%d] rgb %x,%x,%x",i,mb[i3],mb[i3+1],mb[i3+2]);
-        }
-        
-    }
-    
-    [self getUIFields];
-    
-    int loopx,loopy;
-    int iptr;
-    
-    //int lilwid,lilhit;
-    
-    reducedW = workImageWidth/blockSize;
-    reducedH = workImageHeight/blockSize;
-    
-    //Blocksize....
-    //int blen3 = 3 * reducedW * reducedH;
-    int lpptr = 0;
-    if (blockSize > 1) for(loopy=0;loopy<workImageHeight;loopy+=blockSize)
-    {
-        for(loopx=0;loopx<workImageWidth;loopx+=blockSize)
-        {
-         //   -(void) pixelBlock : (unsigned char *) inbuf: (unsigned char *) outbuf : (int) x : (int) y : (int) rowsize : (int) magnification
-            [self pixelBlock: mb :mb2 :loopx :loopy : numchannels : rowsize : blockSize];
-            //[self lilpixel : mb :reducedImage :loopx :loopy : numchannels : rowsize : lpptr];
-            lpptr++;
-
-        } //end loopx
-    } //end loopy
-
-    //Color Depth...
-    lpptr = 0;
-    unsigned char r,g,b;
-    unsigned char bmask;
-    
-    //  a = 1010
-    //  b = 1011
-    //  c = 1100
-    //  d = 1101
-    //  e = 1110
-    //Masking...    1  1  1  1  1  1  1  1
-    // depth        X  X  3  4  5  6  7  8
-    NSLog(@" masking: colordepth %d",colorDepth);
-    bmask = 0xff;
-    switch(colorDepth)
-    {
-        case 2: bmask = 0xc0;
-            break;
-        case 3: bmask = 0xe0;
-            break;
-        case 4: bmask = 0xf0;
-            break;
-        case 5: bmask = 0xf8;
-            break;
-        case 6: bmask = 0xfc;
-            break;
-        case 7: bmask = 0xfe;
-            break;
-        case 8: bmask = 0xff;
-            break;
-            
-    }
-    lpptr = 0;
-    for(loopy=0;loopy<workImageHeight;loopy+=blockSize)
-    {
-        for(loopx=0;loopx<workImageWidth;loopx+=blockSize)
-        {
-            iptr = tiffHeaderSize + lpptr;
-            if (blockSize == 1) //no blocking, get primary image
-            {
-                r = mb[iptr];
-                g = mb[iptr+1];
-                b = mb[iptr+2];
-            }
-            else   //Blocked image? Get mb2, blocked 2nd image
-            {
-                r = mb2[iptr];
-                g = mb2[iptr+1];
-                b = mb2[iptr+2];
-            }
-            r = r & bmask;
-            g = g & bmask;
-            b = b & bmask;
-            mb2[iptr]   = r;
-            mb2[iptr+1] = g;
-            mb2[iptr+2] = b;
-            lpptr+=numchannels;
-        } //end loopx
-    } //end loopy
-
-    
-    //Take our byte array mb, encapsulate it into an NSData object...
-    NSData *outData = [[NSData alloc] initWithBytes:mb2 length:blen];
-    //Now the NSData object gets turned into an NSImage
-    workImage = [[NSImage alloc] initWithData:outData];
-    //Replace the image onscreen with our new iamge...
-    imageView.image = workImage;
-    
-    free(mb2);
-
-} //end preprocessImage
-
-//===HDKTetra===================================================================
 -(void) getUIFields
 {
     //This is the size in pixels of each of our blocks
@@ -403,7 +265,12 @@ int pixelSelectX,pixelSelectY;
     if (colorDepth < 2) colorDepth = 2;
     if (colorDepth > 8) colorDepth = 8;
     _colorDepthText.stringValue = [NSString stringWithFormat: @"%d",colorDepth];
-    
+
+    rowSkip = _rowSkipText.intValue;
+    if (rowSkip < 1) rowSkip = 1;
+    if (rowSkip > 32) rowSkip = 32;
+    _rowSkipText.stringValue = [NSString stringWithFormat: @"%d",rowSkip];
+
    
 } //end getUIFields
 
@@ -506,7 +373,7 @@ int pixelSelectX,pixelSelectY;
     binthresh = _binPopText.intValue;
     if (binthresh == 0)
     {
-        binthresh = 10;
+        binthresh = 1;
         _binPopText.stringValue = @"10";
 
     }
@@ -517,12 +384,27 @@ int pixelSelectX,pixelSelectY;
         _colorSimText.stringValue = @"0.15";
     }
 
-    csugg.binThresh = binthresh;
+    csugg.binThresh     = binthresh;
     csugg.rgbDiffThresh = colthresh;
+    csugg.rowSkip       = rowSkip;
     
     [self getUIFields];
     processedImage = [csugg preprocessImage : workImage : blockSize : colorDepth];
-    imageView.image = processedImage;
+
+    
+    if (whichAlgo == ALGO_SHRUNK)
+    {
+        NSLog(@" shrunk....");
+        NSSize shrinkSize;
+        shrinkSize = NSSizeFromCGSize(CGSizeMake(SHRUNKSIZE, SHRUNKSIZE));
+        shrunkImage = [self imageResize:processedImage newSize:shrinkSize];
+        imageView.image = shrunkImage;
+        NSLog(@" shrunk image size %f %f",shrunkImage.size.width,shrunkImage.size.height);
+    }
+    else
+    {
+        imageView.image = processedImage;
+    }
     [self runAlgo];
 
     
@@ -530,6 +412,26 @@ int pixelSelectX,pixelSelectY;
     
 } //end tetraSelect
 
+
+//===HDKTetra===================================================================
+- (NSImage *)imageResize:(NSImage*)anImage newSize:(NSSize)newSize {
+    NSImage *sourceImage = anImage;
+    [sourceImage setScalesWhenResized:YES];
+    
+    // Report an error if the source isn't a valid image
+    if (![sourceImage isValid]){
+        NSLog(@"Invalid Image");
+    } else {
+        NSImage *smallImage = [[NSImage alloc] initWithSize: newSize];
+        [smallImage lockFocus];
+        [sourceImage setSize: newSize];
+        [[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
+        [sourceImage drawAtPoint:NSZeroPoint fromRect:CGRectMake(0, 0, newSize.width, newSize.height) operation:NSCompositeCopy fraction:1.0];
+        [smallImage unlockFocus];
+        return smallImage;
+    }
+    return nil;
+}
 
 //===HDKTetra===================================================================
 - (IBAction)tlSwatchSelect:(id)sender
@@ -650,7 +552,7 @@ int pixelSelectX,pixelSelectY;
     }
     if ([astr containsString:@"Algo 3"])
     {
-        whichAlgo = ALGO_HUEHISTOGRAM;
+        whichAlgo = ALGO_SHRUNK;
         _binPopText.enabled = TRUE;
         _colorSimText.enabled = TRUE;
     }
@@ -745,8 +647,8 @@ int pixelSelectX,pixelSelectY;
     const CGFloat* components;
     
     NSColor *testColor;
-    for(i=0;i<4;i++) reducedIndices[i] = i;
-
+    for(i=0;i<4;i++) smartIndices[i] = i;
+    smartCount = 0;
     int index = 0;
     int rcount = [csugg getReducedCount];
     rfo = gfo = bfo = 0.0;
@@ -774,13 +676,14 @@ int pixelSelectX,pixelSelectY;
         lll = [csugg getLLL];
         sss = [csugg getSSS];
         if (abs(hhh - hhho) < 3) tossit = TRUE; //Too similar hue
-        NSLog(@" smartcheck[%d] %f %f %f hls %d %d %d",i,rf,gf,bf,hhh,lll,sss);
         
         if (!tossit)
         {
-            reducedIndices[index] = i;
+            smartIndices[index] = i;
             NSLog(@" ...found smart index[%d] = %d",index,i);
+            NSLog(@"                     RGB    %d %d %d   HLS %d %d %d",r,g,b,hhh,lll,sss);
             index++;
+            smartCount++;
         }
         //asdf
         rfo = rf;
@@ -805,15 +708,15 @@ int pixelSelectX,pixelSelectY;
     CGPoint rpt3;
     CGPoint rpt4;
     
-    reducedColor1 = [csugg getNthReducedColor:reducedIndices[0]];
-    reducedColor2 = [csugg getNthReducedColor:reducedIndices[1]];
-    reducedColor3 = [csugg getNthReducedColor:reducedIndices[2]];
-    reducedColor4 = [csugg getNthReducedColor:reducedIndices[3]];
+    reducedColor1 = [csugg getNthReducedColor:smartIndices[0]];
+    reducedColor2 = [csugg getNthReducedColor:smartIndices[1]];
+    reducedColor3 = [csugg getNthReducedColor:smartIndices[2]];
+    reducedColor4 = [csugg getNthReducedColor:smartIndices[3]];
     
-    rpt1 = [csugg getNthReducedXY:reducedIndices[0]];
-    rpt2 = [csugg getNthReducedXY:reducedIndices[1]];
-    rpt3 = [csugg getNthReducedXY:reducedIndices[2]];
-    rpt4 = [csugg getNthReducedXY:reducedIndices[3]];
+    rpt1 = [csugg getNthReducedXY:smartIndices[0]];
+    rpt2 = [csugg getNthReducedXY:smartIndices[1]];
+    rpt3 = [csugg getNthReducedXY:smartIndices[2]];
+    rpt4 = [csugg getNthReducedXY:smartIndices[3]];
     
     //NSLog(@" updateswatches %@ %@ %@ %@",reducedColor1,reducedColor2,reducedColor3,reducedColor4);
     [self updateWell : 1 : reducedColor1];
@@ -821,11 +724,16 @@ int pixelSelectX,pixelSelectY;
     [self updateWell : 3 : reducedColor3];
     [self updateWell : 4 : reducedColor4];
     
+
     //NSLog(@" xy 1234 %f,%f : %f,%f : %f,%f : %f,%f",rpt1.x,rpt1.y,rpt2.x,rpt2.y,rpt3.x,rpt3.y,rpt4.x,rpt4.y);
-    [self updateCrossHair: 1 : rpt1.x : rpt1.y];
-    [self updateCrossHair: 2 : rpt2.x : rpt2.y];
-    [self updateCrossHair: 3 : rpt3.x : rpt3.y];
-    [self updateCrossHair: 4 : rpt4.x : rpt4.y];
+    int xfactor,yfactor;
+    xfactor = yfactor = 1;
+    if (whichAlgo == ALGO_SHRUNK) xfactor = yfactor = SHRUNKSIZE;
+    
+    [self updateCrossHair: 1 : xfactor*rpt1.x : yfactor*rpt1.y];
+    [self updateCrossHair: 2 : xfactor*rpt2.x : yfactor*rpt2.y];
+    [self updateCrossHair: 3 : xfactor*rpt3.x : yfactor*rpt3.y];
+    [self updateCrossHair: 4 : xfactor*rpt4.x : yfactor*rpt4.y];
     
     [self updateXYLabel  : 1 : rpt1.x : rpt1.y];
     [self updateXYLabel  : 2 : rpt2.x : rpt2.y];
@@ -1036,23 +944,25 @@ int pixelSelectX,pixelSelectY;
     nextit = [NSString stringWithFormat:@"Down to %d Colors After Thresh...\n",csugg.binAfterThreshCount];
     dumpit = [dumpit stringByAppendingString:nextit];
 
-    
-    
+    nextit = [NSString stringWithFormat:@"Smart Count %d...\n",smartCount];
+    dumpit = [dumpit stringByAppendingString:nextit];
+
     nextit = [NSString stringWithFormat:@"Down to %d Reduced Colors after Similarity check...\n",rcount];
     dumpit = [dumpit stringByAppendingString:nextit];
     
-    for (i=0;i<rcount;i++)
+    for (i=0;i<smartCount;i++)
     {
-        rpop   = [csugg getNthReducedPopulation:i];
-        rpoint = [csugg getNthReducedXY:i];
-        rcolor = [csugg getNthReducedColor:i];
+        int index = smartIndices[i];
+        rpop   = [csugg getNthReducedPopulation:index];
+        rpoint = [csugg getNthReducedXY:index];
+        rcolor = [csugg getNthReducedColor:index];
         
         r = rcolor.redComponent;
         g = rcolor.greenComponent;
         b = rcolor.blueComponent;
 
-        nextit = [NSString stringWithFormat:@"[%d] RGB (%3.3d,%3.3d,%3.3d) XY %4.4d,%4.4d  Pop: %d\n",
-                  1+i,(int)(255.0*r),(int)(255.0*g),(int)(255.0*b),(int)rpoint.x,(int)rpoint.y,rpop];
+        nextit = [NSString stringWithFormat:@"[%d](%d) RGB (%3.3d,%3.3d,%3.3d) XY %4.4d,%4.4d  Pop: %d\n",
+                  1+i,index,(int)(255.0*r),(int)(255.0*g),(int)(255.0*b),(int)rpoint.x,(int)rpoint.y,rpop];
         dumpit = [dumpit stringByAppendingString:nextit];
     }
     _logOutput.stringValue = dumpit;

@@ -14,13 +14,16 @@
 
 #import <Cocoa/Cocoa.h>
 
+#define SHRUNKSIZE 64
 @interface ViewController : NSViewController
 {
     int binthresh;
     float colthresh;
     int blockSize;
     int colorDepth;
+    int rowSkip;
     NSImage *processedImage;
+    NSImage *shrunkImage;
 }
 - (IBAction)loadSelect:(id)sender;
 - (IBAction)tetraSelect:(id)sender;
@@ -64,6 +67,7 @@
 @property (weak) IBOutlet NSTextField *logOutput;
 @property (weak) IBOutlet NSTextField *descriptionLabel;
 @property (weak) IBOutlet NSTextField *colorDepthText;
+@property (weak) IBOutlet NSTextField *rowSkipText;
 
 @end
 

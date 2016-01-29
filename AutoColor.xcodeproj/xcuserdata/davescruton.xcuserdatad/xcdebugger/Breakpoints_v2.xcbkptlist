@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HDKTetra/CColorSuggester.m"
-            timestampString = "475278061.472539"
+            timestampString = "475718343.877253"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "160"
-            endingLineNumber = "160"
+            startingLineNumber = "176"
+            endingLineNumber = "176"
             landmarkName = "-loadReduced:::"
             landmarkType = "5">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HDKTetra/ViewController.m"
-            timestampString = "475688286.299777"
+            timestampString = "475715875.278125"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "234"
-            endingLineNumber = "234"
+            startingLineNumber = "237"
+            endingLineNumber = "237"
             landmarkName = "-getColorUnderMouse"
             landmarkType = "5">
          </BreakpointContent>
